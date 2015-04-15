@@ -1,8 +1,35 @@
+// 依赖
+var Sequelize = require('sequelize');
+var base = require('./base');
 
-var sequelize = require('./db2');
-
-var Post = sequelize.define('post', {
-  
+// 类
+var PostModel = module.exports = base.define('post', {
+  title: {
+    type: Sequelize.STRING,
+    allowNull: false,
+    defaultValue: ''
+  },
+  content: {
+    type: Sequelize.STRING,
+    allowNull: false,
+    defaultValue: ''
+  },
+  create_time: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+    defaultValue: 0
+  },
+}, {
+  paranoid: true,
+  comment: '评论表',
+  classMethods: {
+    say: function() {
+      return 'say';
+    }
+  },
+  instanceMethods: {
+    world: function() {
+      return 'world';
+    }
+  }
 });
-
-module.exports = Post;
