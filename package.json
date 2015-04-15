@@ -19,5 +19,6 @@
   "bugs" : {
     "url" : "null"
   },
-  "main" : "./app.js"
+  "main" : "./app.js",
+  "description" : "看板工具"
 }
