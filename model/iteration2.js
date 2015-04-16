@@ -50,7 +50,9 @@ var IterationModel = base.define('iteration', {
     
   },
   instanceMethods: {
-    
+    isClosed: function() {
+      return this.status === IterationModel.statusClosed;
+    }
   }
 });
 

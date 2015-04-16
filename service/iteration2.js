@@ -8,12 +8,14 @@ var async = require('async');
 var IterationService = {
   formatList: function(query, callback) {
     // 获取列表
-    var where = {};
+    var where = {
+      status: IterationModel2.statusOnline,
+    };
     if (query.version_id) {
-      where.versionId = query.version_id;
+      where.version_id = query.version_id;
     }
     IterationModel2
-      .findAndCountAll({
+      .findAndCount({
         where: where,
         offset: query.offset || 0,
         limit: query.limit || 10,
