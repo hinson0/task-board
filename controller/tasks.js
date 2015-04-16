@@ -3,57 +3,32 @@ var router = express.Router();
 var moment = require('moment');
 var async = require('async');
 
-var Helper = require('../library/helper');
-var UserModel = require('../model/user');
-var StoryModel = require('../model/story');
-var TaskModel = require('../model/task');
-var TaskStatusModel = require('../model/task_status');
-var TaskFollow = require('../model/task_follow');
-var IterationModel = require('../model/iteration');
-var VersionModel = require('../model/version');
-var Msg91U = require('../library/msg91u');
-
 var IterationModel2 = require('../model/iteration2');
 var TaskModel2 = require('../model/task2');
 var StoryModel2 = require('../model/story2');
 var VersionModel2 = require('../model/version2');
 var TaskFollow2 = require('../model/task_follow2');
-
-router.get('/test', function(req, res) {
-    UserModel.getAll(function(users) {
-        async.each(users, function(user, callback) {
-            var msg91u = new Msg91U(user.worker_num);
-            msg91u.send('淡定淡定...');
-            res.json({msg: 'xxxx'});
-        }, function(err) {
-            res.status(404);
-            res.json(err);
-        });
-    });
-});
+var UserModel2 = require('../model/user2');
+var TaskStatusModel2 = require('../model/task_status2');
 
 router.get('/', checkIterationId);
 router.get('/', function(req, res, next) {
-    StoryModel.getListByIterationId(req.query.iteration_id, function(stories) {
-        if (Helper.isEmptyArray(stories)) {
-            res.json([]);
-        } else {
-            var storyIds = [];
-            stories.forEach(function(story) {
-                storyIds.push(story.id);
-            });
-            TaskModel.getListByStoryIds(storyIds, function(list) {
-                //res.json(list);
-                req.list = list;
-                next();
-            });
-        }
+  TaskModel2
+    .findAll({
+      where: {
+        iteration_id: req.query.iteration_id,
+        status: TaskModel2.statusOnline,
+      },
+      include: [
+        {model: UserModel2},
+        {model: TaskStatusModel2},
+        {model: TaskFollow2},
+      ],
+      order: 'id DESC',
+    })
+    .then(function(result) {
+      res.json(result);
     });
-}, function(req, res) {
-    req.list.forEach(function(task) {
-
-    });
-    res.json(req.list);
 });
 
 router.post('/', checkIterationId);
@@ -61,19 +36,7 @@ router.post('/', checkStoryId);
 router.post('/', checkUserId);
 router.post('/', checkPrevTaskIds);
 router.post('/', checkTaskStausId);
-router.post('/', function(req, res, next) {
-  VersionModel2
-    .find(req.iteration.version_id)
-    .then(function(version) {
-      if (version === null) {
-        res.status(404);
-        res.json({msg: '迭代对应的版本号记录不存在.'});
-      } else {
-        req.version = version;
-        next();
-      }
-    });
-});
+router.post('/', checkVersionId);
 router.post('/', function(req, res, next) { // 添加任务
   TaskModel2
     .build({
@@ -87,9 +50,8 @@ router.post('/', function(req, res, next) { // 添加任务
       is_challenging: req.body.is_challenging,
       priority: req.body.priority,
       estimated_time: req.body.estimated_time,
-      status_id: req.body.status_id,
-      start_time: req.body.start_time,
-      create_time: req.body.create_time,
+      status_id: req.body.task_status_id,
+      create_time: moment().unix()
     })
     .save()
     .then(function(task) {
@@ -115,94 +77,118 @@ router.post('/', function(req) { // 前置任务添加
   });
 });
 
-router.put('/:id', checkIterationId);
 router.put('/:id', checkTaskId);
+router.put('/:id', checkIterationId);
+router.put('/:id', checkVersionId);
 router.put('/:id', checkUserId);
 router.put('/:id', checkStoryId);
 router.put('/:id', checkPrevTaskIds);
-router.put('/:id', checkTaskStausId);
 router.put('/:id', function(req, res, next) {
-    TaskModel.modiById(req.params.id, req.body);
-    next();
-}, function(req, res) {
-    async.series([
-        // 清除老的
-        function(callback) {
-            TaskFollow.deleteByTaskId(req.params.id);
-            callback(null);
-        },
-        // 新增
-        function() {
-            req.prevTaskIds.forEach(function(prevTaskId) {
-                var taskFollow = new TaskFollow({task_id: req.params.id, prev_task_id: prevTaskId});
-                taskFollow.save();
-            });
-        }
-    ]);
-    res.json({id: req.params.id});
+    req.task
+      .updateAttributes({
+        project_id: req.version.project_id,
+        version_id: req.version.id,
+        iteration_id: req.iteration.id,
+        story_id: req.story.id,
+        user_id: req.body.user_id,
+        desc: req.body.desc,
+        is_new: req.body.is_new,
+        is_challenging: req.body.is_challenging,
+        priority: req.body.priority,
+        estimated_time: req.body.estimated_time,
+      })
+      .then(function(task) {
+        res.json({id: task.id});
+        next();
+      })
+      .catch(function(err) {
+        res.status(500);
+        res.json(err.errors);
+      });
+});
+router.put('/:id', function(req, res) {
+  async.series([
+    // 清除老的
+    function(callback) {
+      TaskFollow2
+        .findAll({
+          where: {task_id: req.task.id}
+        })
+        .then(function(tasks) {
+          tasks.forEach(function(task) {
+            task.destroy();
+          });
+          callback(null);
+        });
+    },
+    // 新增
+    function() {
+      req.prevTaskIds.forEach(function(prevTaskId) {
+        TaskFollow2
+          .build({
+            task_id: req.task.id,
+            prev_task_id: prevTaskId,
+            create_time: moment().unix()
+          })
+          .save();
+      });
+    }
+  ]);
 });
 
 router.delete('/:id', checkTaskId);
-router.delete('/:id', function(req, res, next) {
-    TaskModel.deleteById(req.params.id, function() {
-        res.json({msg: '删除成功'});
-        next();
+router.delete('/:id', function(req, res) {
+  req.task
+    .updateAttributes({
+      status: TaskModel2.statusOffline
+    })
+    .then(function() {
+      res.json({msg: '删除成功'});
     });
 });
 
 router.put('/:id/status', checkTaskId);
 router.put('/:id/status', checkTaskStausId);
 router.put('/:id/status', function(req, res) {
-    TaskModel.changeStatusById(req.params.id, req.body.task_status_id);
-    res.json({id: req.params.id});
+  req.task.drag(req.body.task_status_id);
+  res.json({id: req.task.id});
 });
 
-function checkTaskId(req, res, next) {
-  TaskModel2
-    .find(req.params.id)
-    .then(function(task) {
-      if (task === null) {
+function checkUserId(req, res, next) {
+  UserModel2
+    .find(req.body.user_id)
+    .then(function(user) {
+      if (user === null) {
         res.status(404);
-        res.json({msg: '任务不存在'});
+        res.json({msg: '用户不存在'});
       } else {
-        req.task = task;
         next();
       }
     });
 }
-function checkUserId(req, res, next) {
-    UserModel.getById(req.body.user_id, function(userInfo) {
-        if (Helper.isEmptyObj(userInfo)) {
-            res.status(404);
-            res.json({msg: '用户不存在'});
-        } else {
-            res.userInfo = userInfo;
-            next();
-        }
+function checkTaskStausId(req, res, next) {
+  TaskStatusModel2
+    .find(req.body.task_status_id)
+    .then(function(taskStatus) {
+      if (taskStatus === null) {
+        res.status(404);
+        res.json({msg: '请提供正确的状态'});
+      } else {
+        next();
+      }
     });
 }
-function checkPrevTaskIds(req, res, next) {
-    if (req.body.prev_task_ids === undefined) {
-        req.prevTaskIds = [];
-    } else {
-        var prevTaskIds = req.body.prev_task_ids.toString();
-        var prevTaskIdsSplit = prevTaskIds.split(',');
-        if (Helper.isEmptyArray(prevTaskIdsSplit)) {
-            req.prevTaskIds = [];
-        } else {
-            req.prevTaskIds = prevTaskIdsSplit;
-        }
-    }
-    next();
-}
-function checkTaskStausId(req, res, next) {
-    TaskStatusModel.getById(req.body.task_status_id, function(taskStatusInfo) {
-        if (Helper.isEmptyObj(taskStatusInfo)) {
-            res.status(404);
-            res.json({msg: '请提供正确的状态'});
-        } else {
-            next();
-        }
+function checkVersionId(req, res, next) {
+  VersionModel2
+    .find(req.iteration.version_id)
+    .then(function(version) {
+      if (version === null) {
+        res.status(404);
+        res.json({msg: '迭代对应的版本号记录不存在.'});
+      } else {
+        req.version = version;
+        next();
+      }
     });
 }
 function checkStoryId(req, res, next) {
@@ -235,6 +221,27 @@ function checkIterationId(req, res, next) {
         }
       }
     });
+}
+function checkTaskId(req, res, next) {
+  TaskModel2
+    .find(req.params.id)
+    .then(function(task) {
+      if (task === null) {
+        res.status(404);
+        res.json({msg: '任务不存在'});
+      } else {
+        req.task = task;
+        next();
+      }
+    });
+}
+function checkPrevTaskIds(req, res, next) {
+  if (req.body.prev_task_ids === undefined) {
+    req.prevTaskIds = [];
+  } else {
+    req.prevTaskIds = req.body.prev_task_ids;
+  }
+  next();
 }
 
 module.exports = router;

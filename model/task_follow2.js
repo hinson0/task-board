@@ -1,5 +1,4 @@
 var Sequelize = require('sequelize');
-var moment = require('moment');
 var base = require('./base');
 
 var TaskFollowModel = base.define('task_follow', {

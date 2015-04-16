@@ -23,6 +23,9 @@ var TaskModel = base.define('task', {
   desc: {
     type: Sequelize.STRING,
   },
+  status: {
+    type: Sequelize.INTEGER,
+  },
   is_new: {
     type: Sequelize.INTEGER,
   },
@@ -44,6 +47,25 @@ var TaskModel = base.define('task', {
   create_time: {
     type: Sequelize.INTEGER,
   },
+}, {
+  instanceMethods: {
+    drag: function(status_id) { // 拉动任务
+      this.status_id = status_id;
+      this.start_time = moment().unix();
+      this.save();
+    },
+  },
 });
+
+TaskModel.statusOnline = 0;
+TaskModel.statusOffline = 99;
+
+// 关系
+var UserModel = require('./user2');
+var TaskStatusModel = require('./task_status2');
+var TaskFollow = require('./task_follow2');
+TaskModel.belongsTo(UserModel, {foreignKey: 'user_id'});
+TaskModel.belongsTo(TaskStatusModel, {foreignKey: 'status_id'});
+TaskModel.hasMany(TaskFollow, {foreignKey: 'task_id'});
 
 module.exports = TaskModel;

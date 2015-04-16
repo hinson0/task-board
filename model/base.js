@@ -8,8 +8,8 @@ var base = new Sequelize(config.database, config.user, config.password, {
   dialect: 'mysql',
   define: {
     engine: 'innodb',
-    freezeTableName: true,
-    timestamps: false,
+    freezeTableName: true, // 使用define中的名字
+    timestamps: false, // 取消字段updateAt,createAt
   }
 });
 
