@@ -13,27 +13,13 @@ var IterationModel = require('../model/iteration');
 var VersionModel = require('../model/version');
 var Msg91U = require('../library/msg91u');
 
+var IterationModel2 = require('../model/iteration2');
+var TaskModel2 = require('../model/task2');
+var StoryModel2 = require('../model/story2');
+var VersionModel2 = require('../model/version2');
+var TaskFollow2 = require('../model/task_follow2');
+
 router.get('/test', function(req, res) {
-    //async.waterfall([
-    //    function(callback) {
-    //        TaskModel.getById(42, function(task) {
-    //            callback(null, task);
-    //        });
-    //    },
-    //    function(task, callback) {
-    //        TaskStatusModel.getById(task.status_id, function(taskStatus) {
-    //            task.task_status = taskStatus;
-    //            callback(null, task);
-    //        });
-    //    }
-    //], function(err, results) {
-    //    res.json(results);
-    //});
-
-    //TaskModel.getListByIterationId(4, function(result) {
-    //    res.json(result);
-    //});
-
     UserModel.getAll(function(users) {
         async.each(users, function(user, callback) {
             var msg91u = new Msg91U(user.worker_num);
@@ -70,52 +56,66 @@ router.get('/', function(req, res, next) {
     res.json(req.list);
 });
 
-router.post('/', checkUserId);
+router.post('/', checkIterationId);
 router.post('/', checkStoryId);
+router.post('/', checkUserId);
 router.post('/', checkPrevTaskIds);
 router.post('/', checkTaskStausId);
 router.post('/', function(req, res, next) {
-    async.waterfall([
-        // 获取迭代记录
-        function(callback) {
-            IterationModel.getById(req.storyInfo.iteration_id, function(iteration) {
-                if (Helper.isEmptyObj(iteration)) {
-                    res.status(404);
-                    res.json({msg: '迭代记录不存在'});
-                } else {
-                    callback(null, iteration);
-                }
-            });
-        },
-
-        // 获取版本记录
-        function(iteration, callback) {
-            VersionModel.getById(iteration.version_id, function(version) {
-                iteration.version = version;
-                callback(null, iteration);
-            });
-        }
-    ], function(err, iteration) {
-        req.body.iteration_id = iteration.id;
-        req.body.project_id = iteration.version.project_id;
-        req.body.version_id = iteration.version.id;
+  VersionModel2
+    .find(req.iteration.version_id)
+    .then(function(version) {
+      if (version === null) {
+        res.status(404);
+        res.json({msg: '迭代对应的版本号记录不存在.'});
+      } else {
+        req.version = version;
         next();
+      }
     });
 });
 router.post('/', function(req, res, next) { // 添加任务
-    var task = new TaskModel(req.body);
-    task.save(function(id) {
-        req.taskId = id;
-        next();
+  TaskModel2
+    .build({
+      project_id: req.version.project_id,
+      version_id: req.version.id,
+      iteration_id: req.iteration.id,
+      story_id: req.story.id,
+      user_id: req.body.user_id,
+      desc: req.body.desc,
+      is_new: req.body.is_new,
+      is_challenging: req.body.is_challenging,
+      priority: req.body.priority,
+      estimated_time: req.body.estimated_time,
+      status_id: req.body.status_id,
+      start_time: req.body.start_time,
+      create_time: req.body.create_time,
+    })
+    .save()
+    .then(function(task) {
+      res.json({id: task.id});
+      req.taskId = task.id;
+      next();
+    })
+    .catch(function(err) {
+      res.status(500);
+      res.json(err.errors);
     });
-}, function(req, res) { // 前置任务添加
-    req.prevTaskIds.forEach(function(prevTaskId) {
-        var taskFollow = new TaskFollow({task_id: req.taskId, prev_task_id: prevTaskId});
-        taskFollow.save();
-    });
-    res.json({id: req.taskId});
+    
+});
+router.post('/', function(req) { // 前置任务添加
+  req.prevTaskIds.forEach(function(prevTaskId) {
+    TaskFollow2
+      .build({
+        task_id: req.taskId,
+        prev_task_id: prevTaskId,
+        create_time: moment().unix()
+      })
+      .save();
+  });
 });
 
+router.put('/:id', checkIterationId);
 router.put('/:id', checkTaskId);
 router.put('/:id', checkUserId);
 router.put('/:id', checkStoryId);
@@ -157,6 +157,19 @@ router.put('/:id/status', function(req, res) {
     res.json({id: req.params.id});
 });
 
+function checkTaskId(req, res, next) {
+  TaskModel2
+    .find(req.params.id)
+    .then(function(task) {
+      if (task === null) {
+        res.status(404);
+        res.json({msg: '任务不存在'});
+      } else {
+        req.task = task;
+        next();
+      }
+    });
+}
 function checkUserId(req, res, next) {
     UserModel.getById(req.body.user_id, function(userInfo) {
         if (Helper.isEmptyObj(userInfo)) {
@@ -164,17 +177,6 @@ function checkUserId(req, res, next) {
             res.json({msg: '用户不存在'});
         } else {
             res.userInfo = userInfo;
-            next();
-        }
-    });
-}
-function checkStoryId(req, res, next) {
-    StoryModel.getById(req.param('story_id'), function(storyInfo) {
-        if (Helper.isEmptyObj(storyInfo)) {
-            res.status(404);
-            res.json({msg: '故事不存在'});
-        } else {
-            req.storyInfo = storyInfo;
             next();
         }
     });
@@ -203,24 +205,35 @@ function checkTaskStausId(req, res, next) {
         }
     });
 }
-function checkTaskId(req, res, next) {
-    TaskModel.getById(req.params.id, function(taskInfo) {
-        if (Helper.isEmptyObj(taskInfo)) {
-            res.status(404);
-            res.json({msg: '任务不存在'});
-        } else {
-            next();
-        }
+function checkStoryId(req, res, next) {
+  StoryModel2
+    .find(req.param('story_id'))
+    .then(function(story) {
+      if (story === null) {
+        res.status(404);
+        res.json({msg: '故事不存在'});
+      } else {
+        req.story = story;
+        next();
+      }
     });
 }
 function checkIterationId(req, res, next) {
-    IterationModel.getById(req.param('iteration_id', 0), function(iterationInfo) {
-        if (Helper.isEmptyObj(iterationInfo)) {
-            res.status(404);
-            res.json({msg: '迭代计划不存在'});
+  IterationModel2
+    .find(req.param('iteration_id'))
+    .then(function(iteration) {
+      if (iteration === null) {
+        res.status(404);
+        res.json({msg: '迭代计划不存在'});
+      } else {
+        if (iteration.isClosed()) {
+          res.status(404);
+          res.json({msg: '迭代计划已关闭,不能进行任何操作了.'});
         } else {
-            next();
+          req.iteration = iteration;
+          next();
         }
+      }
     });
 }
 
