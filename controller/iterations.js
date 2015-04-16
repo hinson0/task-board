@@ -6,7 +6,7 @@ var VersionModel2 = require('../model/version2');
 var IterationModel2 = require('../model/iteration2');
 var IterationService2 = require('../service/iteration2');
 
-router.use('/:id', function (req, res, next) {
+router.use('/:id', function(req, res, next) {
   IterationModel2
     .find(req.params.id)
     .then(function(iteration) {
@@ -21,15 +21,15 @@ router.use('/:id', function (req, res, next) {
 });
 
 // 列表
-router.get('/', function (req, res, next) {
-    IterationService2.formatList(req.query, function(error, result) {
-      res.json(result);
-    });
+router.get('/', function(req, res, next) {
+  IterationService2.formatList(req.query, function(error, result) {
+    res.json(result);
+  });
 });
 
 // 新增
 router.post('/', checkVersionId, checkUniqVN);
-router.post('/', function (req, res) {
+router.post('/', function(req, res) {
   IterationModel2
     .build(req.body)
     .save()
@@ -44,16 +44,14 @@ router.post('/', function (req, res) {
 
 // 编辑
 router.put('/:id', checkVersionId);
-router.put('/:id', function (req, res, next) {
+router.put('/:id', function(req, res, next) {
   if ((req.iteration.name !== req.body.name) || (req.iteration.version_id !== req.body.version_id)) {
     checkUniqVN(req, res, next);
   } else {
     next();
   }
 });
-router.put('/:id', function (req, res) {
-  console.log(12);
-  console.log(req.iteration);
+router.put('/:id', function(req, res) {
   var iteration = req.iteration;
   iteration
     .updateAttributes(req.body)
@@ -67,16 +65,16 @@ router.put('/:id', function (req, res) {
 });
 
 // 关闭
-router.put('/:id/closed', function (req, res) {
+router.put('/:id/closed', function(req, res) {
   var iteration = req.iteration;
   iteration.status = IterationModel2.statusClosed;
-  iteration.save().then(function () {
+  iteration.save().then(function() {
     res.json({msg: '关闭成功'});
   });
 });
 
 // 删除
-router.delete('/:id', function (req, res) {
+router.delete('/:id', function(req, res) {
   var iteration = req.iteration;
   iteration.status = IterationModel2.statusOffline;
   iteration
@@ -107,7 +105,6 @@ function checkUniqVN(req, res, next) { // 校验迭代名称是否存在
       }
     })
     .then(function(iteration) {
-      console.log(iteration);
       if (iteration) {
         res.status(404);
         res.json({msg: '迭代名称存在'});
