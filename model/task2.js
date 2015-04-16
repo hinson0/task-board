@@ -3,6 +3,10 @@ var Sequelize = require('sequelize');
 var moment = require('moment');
 var base = require('./base');
 
+var UserModel = require('./user2');
+var TaskStatusModel = require('./task_status2');
+var TaskFollow = require('./task_follow2');
+
 // 类
 var TaskModel = base.define('task', {
   project_id: {
@@ -61,9 +65,6 @@ TaskModel.statusOnline = 0;
 TaskModel.statusOffline = 99;
 
 // 关系
-var UserModel = require('./user2');
-var TaskStatusModel = require('./task_status2');
-var TaskFollow = require('./task_follow2');
 TaskModel.belongsTo(UserModel, {foreignKey: 'user_id'});
 TaskModel.belongsTo(TaskStatusModel, {foreignKey: 'status_id'});
 TaskModel.hasMany(TaskFollow, {foreignKey: 'task_id'});

@@ -1,7 +1,7 @@
 var Sequelize = require('sequelize');
 var base = require('./base');
 
-var TaskStausModel = base.define('task_status', {
+var TaskStatusModel = base.define('task_status', {
   name: {
     type: Sequelize.STRING,
   },
@@ -11,10 +11,16 @@ var TaskStausModel = base.define('task_status', {
   create_time: {
     type: Sequelize.INTEGER,
   },
+}, {
+  classMethods: {
+    isDragToComplete: function(status_id) {
+      return parseInt(status_id, 10) === TaskStatusModel.COMPLETE;
+    }
+  },
 });
 
-TaskStausModel.WAITING = 10;
-TaskStausModel.DEVING = 20;
-TaskStausModel.COMPLETE = 50;
+TaskStatusModel.WAITING = 10;
+TaskStatusModel.DEVING = 20;
+TaskStatusModel.COMPLETE = 50;
 
-module.exports = TaskStausModel;
+module.exports = TaskStatusModel;

@@ -10,9 +10,11 @@ var VersionModel2 = require('../model/version2');
 var TaskFollow2 = require('../model/task_follow2');
 var UserModel2 = require('../model/user2');
 var TaskStatusModel2 = require('../model/task_status2');
+var TaskService = require('../service/task');
 
+// 呈现列表
 router.get('/', checkIterationId);
-router.get('/', function(req, res, next) {
+router.get('/', function(req, res) {
   TaskModel2
     .findAll({
       where: {
@@ -31,6 +33,7 @@ router.get('/', function(req, res, next) {
     });
 });
 
+// 新建任务
 router.post('/', checkIterationId);
 router.post('/', checkStoryId);
 router.post('/', checkUserId);
@@ -77,6 +80,7 @@ router.post('/', function(req) { // 前置任务添加
   });
 });
 
+// 编辑任务
 router.put('/:id', checkTaskId);
 router.put('/:id', checkIterationId);
 router.put('/:id', checkVersionId);
@@ -136,6 +140,7 @@ router.put('/:id', function(req, res) {
   ]);
 });
 
+// 删除任务
 router.delete('/:id', checkTaskId);
 router.delete('/:id', function(req, res) {
   req.task
@@ -147,11 +152,22 @@ router.delete('/:id', function(req, res) {
     });
 });
 
+// 拉动任务
 router.put('/:id/status', checkTaskId);
 router.put('/:id/status', checkTaskStausId);
-router.put('/:id/status', function(req, res) {
+router.put('/:id/status', function(req, res, next) {
   req.task.drag(req.body.task_status_id);
   res.json({id: req.task.id});
+  next();
+});
+router.put('/:id/status', function(req) { // 前置任务完成则推送99U
+  // 判断是否开发完成
+  if (!TaskStatusModel2.isDragToComplete(req.body.task_status_id)) {
+    return;
+  }
+  
+  // 发送
+  TaskService.send91umsg(req.task);
 });
 
 function checkUserId(req, res, next) {
