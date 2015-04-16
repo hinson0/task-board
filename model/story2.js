@@ -9,13 +9,25 @@ var StoryModel = base.define('story', {
   leader: {
     type: Sequelize.INTEGER,
   },
+  version_id: {
+    type: Sequelize.INTEGER,
+  },
+  priority: {
+    type: Sequelize.INTEGER,
+    defaultValue: 0,
+    allowNull: false,
+    validate: {
+      min: 0,
+      max: {
+        args: 5,
+        msg: '优先级最大值为5',
+      },
+    }
+  },
   create_time: {
     type: Sequelize.INTEGER,
     allowNull: false,
     defaultValue: moment().unix()
-  },
-  version_id: {
-    type: Sequelize.INTEGER,
   },
 });
 
