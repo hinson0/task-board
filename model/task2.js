@@ -5,7 +5,8 @@ var base = require('./base');
 
 var UserModel = require('./user2');
 var TaskStatusModel = require('./task_status2');
-var TaskFollow = require('./task_follow2');
+var TaskFollowModel = require('./task_follow2');
+var TaskHistoryModel = require('./task_history');
 
 // 类
 var TaskModel = base.define('task', {
@@ -57,8 +58,11 @@ var TaskModel = base.define('task', {
 }, {
   instanceMethods: {
     drag: function(status_id) { // 拉动任务
+      // 新建操作记录
+      TaskHistoryModel.gen(this.id, this.status_id, status_id, this.user_id);
+      
+      // 修改
       status_id = parseInt(status_id);
-      this.status_id = status_id;
       if (status_id === TaskStatusModel.DEVING) { // 拉动到开发中
         this.start_time = moment().unix();
       } else if (status_id === TaskStatusModel.COMPLETE) { // 拉动到已完成
@@ -66,6 +70,7 @@ var TaskModel = base.define('task', {
       } else {
         // do nothing
       }
+      this.status_id = status_id;
       return this.save();
     }
   }
@@ -77,6 +82,7 @@ TaskModel.statusOffline = 99;
 // 关系
 TaskModel.belongsTo(UserModel, {foreignKey: 'user_id'});
 TaskModel.belongsTo(TaskStatusModel, {foreignKey: 'status_id'});
-TaskModel.hasMany(TaskFollow, {foreignKey: 'task_id'});
+TaskModel.hasMany(TaskFollowModel, {foreignKey: 'task_id'});
+TaskModel.hasMany(TaskHistoryModel, {foreignKey: 'task_id'});
 
 module.exports = TaskModel;

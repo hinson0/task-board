@@ -10,6 +10,7 @@ var VersionModel2 = require('../model/version2');
 var TaskFollow2 = require('../model/task_follow2');
 var UserModel2 = require('../model/user2');
 var TaskStatusModel2 = require('../model/task_status2');
+var TaskHistoryModel = require('../model/task_history');
 var TaskService = require('../service/task');
 
 // 呈现列表
@@ -44,7 +45,8 @@ router.get('/', function (req, res) {
       include: [
         {model: UserModel2},
         {model: TaskStatusModel2},
-        {model: TaskFollow2}
+        {model: TaskFollow2},
+        {model: TaskHistoryModel}
       ],
       order: 'id DESC',
       offset: req.query.offset || 0,
@@ -132,7 +134,7 @@ router.put('/:id', function (req, res, next) {
       res.json(err.errors);
     });
 });
-router.put('/:id', function (req, res) {
+router.put('/:id', function (req) {
   async.series([
     // 清除老的
     function (callback) {
