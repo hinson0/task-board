@@ -1,2 +1,4 @@
 /node_modules
 /.nbinfo
+/bin/*.log
+/bin/*.out
