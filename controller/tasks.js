@@ -15,18 +15,23 @@ var TaskService = require('../service/task');
 // 呈现列表
 router.get('/', checkIterationId);
 router.get('/', function(req, res) {
+  var where = {
+    iteration_id: req.query.iteration_id,
+    status: TaskModel2.statusOnline,
+  };
+  if (req.query.user_id) {
+    where.user_id = req.query.user_id;
+  }
+  
   TaskModel2
     .findAll({
-      where: {
-        iteration_id: req.query.iteration_id,
-        status: TaskModel2.statusOnline,
-      },
+      where: where,
       include: [
         {model: UserModel2},
         {model: TaskStatusModel2},
-        {model: TaskFollow2},
+        {model: TaskFollow2}
       ],
-      order: 'id DESC',
+      order: 'id DESC'
     })
     .then(function(result) {
       res.json(result);
