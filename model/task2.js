@@ -48,17 +48,27 @@ var TaskModel = base.define('task', {
   start_time: {
     type: Sequelize.INTEGER,
   },
-  create_time: {
-    type: Sequelize.INTEGER,
+  end_time: {
+    type: Sequelize.INTEGER
   },
+  create_time: {
+    type: Sequelize.INTEGER
+  }
 }, {
   instanceMethods: {
     drag: function(status_id) { // 拉动任务
+      status_id = parseInt(status_id);
       this.status_id = status_id;
-      this.start_time = moment().unix();
-      this.save();
-    },
-  },
+      if (status_id === TaskStatusModel.DEVING) { // 拉动到开发中
+        this.start_time = moment().unix();
+      } else if (status_id === TaskStatusModel.COMPLETE) { // 拉动到已完成
+        this.end_time = moment().unix();
+      } else {
+        // do nothing
+      }
+      return this.save();
+    }
+  }
 });
 
 TaskModel.statusOnline = 0;
