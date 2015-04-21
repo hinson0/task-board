@@ -19,12 +19,19 @@ var VersionModel = base.define('version', {
   },
   start_time: {
     type: Sequelize.INTEGER,
+    validate: {
+      isLtStartTime: function () {
+        if (this.start_time > this.end_time) {
+          throw new Error('结束时间应大于起始时间');
+        }
+      }
+    }
   },
   end_time: {
     type: Sequelize.INTEGER,
     validate: {
-      isLtStartTime: function () {
-        if (this.start_time >= this.end_time) {
+      isGtStartTime: function () {
+        if (this.start_time > this.end_time) {
           throw new Error('结束时间应大于起始时间');
         }
       }

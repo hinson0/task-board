@@ -30,18 +30,23 @@ router.post('/', function (req, res) {
       res.json({id: version.id});
     })
     .catch(function (err) {
-      res.status(500);
-      res.json(err.errors);
+      res.status(400);
+      res.json({msg: err.errors[0].message});
     });
 });
 
 // 列表
 router.get('/', function (req, res) {
+  var where = {};
+  if (req.query.status) {
+    where.status = req.query.status.split(',');
+  } else {
+    where.status = VersionModel2.statusOnline;
+  }
+  
   VersionModel2
     .findAndCount({
-      where: {
-        status: req.query.status.split(',')
-      },
+      where: where,
       include: [
         {model: ProjectModel2}
       ],
@@ -70,8 +75,8 @@ router.put('/:id', function (req, res) {
       res.json({id: version.id});
     })
     .catch(function (err) {
-      res.status(500);
-      res.json(err.errors);
+      res.status(400);
+      res.json({msg: err.errors[0].message});
     });
 });
 
