@@ -27,11 +27,14 @@ var StoryModel = base.define('story', {
       },
     }
   },
+  status: {
+    type: Sequelize.INTEGER
+  },
   create_time: {
     type: Sequelize.INTEGER,
     allowNull: false,
     defaultValue: moment().unix()
-  },
+  }
 }, {
   classMethods: {
     findByVt: function (versionId, title) { // 根据版本号，标题
@@ -45,6 +48,10 @@ var StoryModel = base.define('story', {
     }
   }
 });
+
+// 状态
+StoryModel.statusOnline = 0;
+StoryModel.statusDeleted = 99;
 
 // 关系
 var UserModel = require('./user_model');

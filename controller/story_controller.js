@@ -21,7 +21,36 @@ router.post('/', function(req, res) {
     });
 });
 
-router.put('/:id', checkStoryId);
+router.get('/', checkVersionId);
+router.get('/', function(req, res) {
+  StoryModel2
+    .findAll({
+      where: {
+        version_id: req.query.version_id,
+        status: StoryModel2.statusOnline
+      },
+      include: [UserModel2],
+      order: 'id DESC'
+    })
+    .then(function(stories) {
+      res.json(stories);
+    });
+});
+
+router.use('/:id', function (req, res, next) {
+  StoryModel2
+    .find(req.params.id)
+    .then(function (story) {
+      if (story === null) {
+        res.status(400);
+        res.json({msg: '故事不存在'});
+      } else {
+        req.story = story;
+        next();
+      }
+    });
+});
+
 router.put('/:id', function (req, res, next) {
   if (isVtChanged(req, req.story)) {
     checkVt(req, res, next);
@@ -40,16 +69,13 @@ router.put('/:id', function (req, res) {
     });
 });
 
-router.get('/', checkVersionId);
-router.get('/', function(req, res) {
-  StoryModel2
-    .findAll({
-      where: {version_id: req.query.version_id},
-      include: [UserModel2],
-      order: 'id DESC',
+router.delete('/:id', function (req, res) {
+  req.story
+    .updateAttributes({
+      status: StoryModel2.statusDeleted
     })
-    .then(function(stories) {
-      res.json(stories);
+    .then(function () {
+      res.json({msg: '删除成功'});
     });
 });
 
@@ -79,31 +105,16 @@ function checkLeader(req, res, next) { // 校验故事负责人是否存在
       }
     });
 }
-function checkStoryId(req, res, next) {
-  StoryModel2
-    .find(req.params.id)
-    .then(function (story) {
-      if (story === null) {
-        res.status(400);
-        res.json({msg: '故事不存在'});
-      } else {
-        req.story = story;
-        next();
-      }
-    });
-}
 function checkVt(req, res, next) { // title是否已经存在
   StoryModel2
-    .find({
-      where: {version_id: req.body.version_id, title: req.body.title}
-    })
-    .then(function(story) {
+    .findByVt(req.body.version_id, req.body.title)
+    .then(function (story) {
       if (story) {
         res.status(400);
         res.json({msg: '故事title存在'});
       } else {
         next();
-      }
+      }  
     });
 }
 function isVtChanged(req, story) {
