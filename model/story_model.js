@@ -9,6 +9,9 @@ var StoryModel = base.define('story', {
   leader: {
     type: Sequelize.INTEGER,
   },
+  iteration_id: {
+    type: Sequelize.INTEGER
+  },
   version_id: {
     type: Sequelize.INTEGER,
   },
@@ -29,6 +32,18 @@ var StoryModel = base.define('story', {
     allowNull: false,
     defaultValue: moment().unix()
   },
+}, {
+  classMethods: {
+    findByVt: function (versionId, title) { // 根据版本号，标题
+      return StoryModel
+        .find({
+          where: {
+            version_id: versionId,
+            title: title
+          }
+        });
+    }
+  }
 });
 
 // 关系
