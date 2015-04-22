@@ -12,6 +12,7 @@ var UserModel2 = require('../model/user2');
 var TaskStatusModel2 = require('../model/task_status2');
 var TaskHistoryModel = require('../model/task_history');
 var TaskService = require('../service/task');
+var TaskConcernedModel = require('../model/task_concerned');
 
 // 呈现列表
 router.get('/', function (req, res, next) {
@@ -191,7 +192,47 @@ router.put('/:id/status', function (req) { // 前置任务完成则推送99U
   }
 
   // 发送
-  TaskService.send91umsg(req.task);
+  async.parallel([
+    TaskService.send91umsg(req.task),
+    TaskService.sendConcernedMsg(req.task)
+  ]);
+});
+
+// 关注任务
+router.post('/:id/concerned', checkTaskId);
+router.post('/:id/concerned', checkUserId);
+router.post('/:id/concerned', function (req, res, next) { // 判断是否关注
+  TaskConcernedModel
+    .find({
+      where: {
+        task_id: req.params.id,
+        user_id: req.body.user_id
+      }
+    })
+    .then(function (taskConcerned) {
+      if (taskConcerned === null) {
+        next();
+      } else {
+        res.status(400);
+        res.json({msg: '已关注'});
+      }
+    });
+});
+router.post('/:id/concerned', function (req, res) {
+  TaskConcernedModel
+    .build({
+      task_id: req.params.id,
+      user_id: req.body.user_id,
+      create_time: moment().unix()
+    })
+    .save()
+    .then(function () {
+      res.json({msg: '关注成功'});
+    })
+    .catch(function (err) {
+      res.status(500);
+      res.json(err.errors);
+    });
 });
 
 function checkUserId(req, res, next) {

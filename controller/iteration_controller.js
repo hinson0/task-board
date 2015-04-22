@@ -73,6 +73,17 @@ router.put('/:id/closed', function(req, res) {
   });
 });
 
+router.put('/:id/toggle', function (req, res) {
+  req.iteration
+    .toggle()
+    .then(function () {
+      res.json({msg: '关闭成功'});
+    })
+    .catch(function (err) {
+      
+    });
+});
+
 // 删除
 router.delete('/:id', function(req, res) {
   var iteration = req.iteration;
