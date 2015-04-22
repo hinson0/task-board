@@ -52,14 +52,23 @@ var IterationModel = base.define('iteration', {
   instanceMethods: {
     isClosed: function() {
       return this.status === IterationModel.statusClosed;
+    },
+    toggle: function () { // 关闭/打开迭代
+      if (this.status === 0) {
+        this.status = 1;
+        return this.save();
+      } else {
+        this.status = 0;
+        return this.save();
+      }
     }
   }
 });
 
 // 状态
-IterationModel.statusOnline = 0;
-IterationModel.statusClosed = 1;
-IterationModel.statusOffline = 99;
+IterationModel.statusOnline = 0; // 打开
+IterationModel.statusClosed = 1; // 关闭
+IterationModel.statusOffline = 99; // 删除
 
 // 关系
 var VersionModel = require('./version_model');

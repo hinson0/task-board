@@ -4,7 +4,8 @@ var moment = require('moment');
 
 var VersionModel2 = require('../model/version_model');
 var IterationModel2 = require('../model/iteration_model');
-var IterationService2 = require('../service/iteration');
+var IterationService2 = require('../service/iteration_service');
+var RouterService = require('../service/router_service');
 
 router.use('/:id', function(req, res, next) {
   IterationModel2
@@ -36,9 +37,8 @@ router.post('/', function(req, res) {
     .then(function(iteration) {
       res.json({id: iteration.id});
     })
-    .catch(function(error) {
-      res.status(404);
-      res.json(error.errors);
+    .catch(function(err) {
+      RouterService.json(err, res);
     });
 });
 
@@ -58,29 +58,20 @@ router.put('/:id', function(req, res) {
     .then(function() {
       res.json({id: iteration.id});
     })
-    .catch(function(error) {
-      res.status(404);
-      res.json(error.errors);
+    .catch(function(err) {
+      RouterService.json(err, res);
     });
 });
 
 // 关闭
-router.put('/:id/closed', function(req, res) {
-  var iteration = req.iteration;
-  iteration.status = IterationModel2.statusClosed;
-  iteration.save().then(function() {
-    res.json({msg: '关闭成功'});
-  });
-});
-
 router.put('/:id/toggle', function (req, res) {
   req.iteration
     .toggle()
     .then(function () {
-      res.json({msg: '关闭成功'});
+      res.json({msg: '操作成功'});
     })
     .catch(function (err) {
-      
+      RouterService.json(err, res);
     });
 });
 

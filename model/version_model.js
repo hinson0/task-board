@@ -51,9 +51,8 @@ var VersionModel = base.define('version', {
   },
 }, {
   instanceMethods: {
-    toggle: function(status) {
-      status = parseInt(status);
-      if (status === 1) {
+    toggle: function() {
+      if (this.status === 0) {
         this.status = 1;
         return this.save();
       } else {
