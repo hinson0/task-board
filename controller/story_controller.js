@@ -1,9 +1,9 @@
 var express = require('express');
 var router = express.Router();
 
-var VersionModel2 = require('../model/version2');
-var UserModel2 = require('../model/user2');
-var StoryModel2 = require('../model/story2');
+var VersionModel2 = require('../model/version_model');
+var UserModel2 = require('../model/user_model');
+var StoryModel2 = require('../model/story_model');
 
 router.post('/', checkVersion);
 router.post('/', checkLeader);

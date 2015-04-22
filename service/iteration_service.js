@@ -1,7 +1,7 @@
 // 依赖
-var IterationModel2 = require('../model/iteration2');
-var VersionModel = require('../model/version2');
-var ProjectModel = require('../model/project2');
+var IterationModel2 = require('../model/iteration_model');
+var VersionModel = require('../model/version_model');
+var ProjectModel = require('../model/project_model');
 var async = require('async');
 
 // 定义

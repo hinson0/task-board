@@ -3,10 +3,10 @@ var Sequelize = require('sequelize');
 var moment = require('moment');
 var base = require('./base');
 
-var UserModel = require('./user2');
-var TaskStatusModel = require('./task_status2');
-var TaskFollowModel = require('./task_follow2');
-var TaskHistoryModel = require('./task_history');
+var UserModel = require('./user_model');
+var TaskStatusModel = require('./task_status_model');
+var TaskFollowModel = require('./task_follow_model');
+var TaskHistoryModel = require('./task_history_model');
 
 // 类
 var TaskModel = base.define('task', {

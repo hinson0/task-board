@@ -3,16 +3,16 @@ var router = express.Router();
 var moment = require('moment');
 var async = require('async');
 
-var IterationModel2 = require('../model/iteration2');
-var TaskModel2 = require('../model/task2');
-var StoryModel2 = require('../model/story2');
-var VersionModel2 = require('../model/version2');
-var TaskFollow2 = require('../model/task_follow2');
-var UserModel2 = require('../model/user2');
-var TaskStatusModel2 = require('../model/task_status2');
-var TaskHistoryModel = require('../model/task_history');
-var TaskService = require('../service/task');
-var TaskConcernedModel = require('../model/task_concerned');
+var IterationModel2 = require('../model/iteration_model');
+var TaskModel2 = require('../model/task_model');
+var StoryModel2 = require('../model/story_model');
+var VersionModel2 = require('../model/version_model');
+var TaskFollow2 = require('../model/task_follow_model');
+var UserModel2 = require('../model/user_model');
+var TaskStatusModel2 = require('../model/task_status_model');
+var TaskHistoryModel = require('../model/task_history_model');
+var TaskService = require('../service/task_service');
+var TaskConcernedModel = require('../model/task_concerned_model');
 
 // 呈现列表
 router.get('/', function (req, res, next) {

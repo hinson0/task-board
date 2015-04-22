@@ -1,9 +1,10 @@
 var async = require('async');
 
-var TaskStatusModel2 = require('../model/task_status2');
-var TaskFollow2 = require('../model/task_follow2');
-var TaskModel2 = require('../model/task2');
-var UserModel2 = require('../model/user2');
+var TaskStatusModel2 = require('../model/task_status_model');
+var TaskFollow2 = require('../model/task_follow_model');
+var TaskModel2 = require('../model/task_model');
+var UserModel2 = require('../model/user_model');
+var TaskConcerned = require('../model/task_concerned_model');
 
 var Msg91U = require('../library/msg91u');
 
@@ -55,6 +56,22 @@ var TaskService = {
     };
 
     async.waterfall([findTaskFollows, findTasks, findUsers]);
+  },
+  sendConcernedMsg: function (task) {
+//    var findTaskConcerned = function () {
+//      TaskConcerned
+//        .findAll({
+//          where: {
+//            task_id: task.id
+//          }
+//        })
+//        .then(function (taskConcerned) {
+//
+//        });
+//    };
+//    async.waterfall([
+//      
+//    ]);
   }
 };
 

@@ -2,9 +2,9 @@ var express = require('express');
 var router = express.Router();
 var moment = require('moment');
 
-var VersionModel2 = require('../model/version2');
-var IterationModel2 = require('../model/iteration2');
-var IterationService2 = require('../service/iteration2');
+var VersionModel2 = require('../model/version_model');
+var IterationModel2 = require('../model/iteration_model');
+var IterationService2 = require('../service/iteration');
 
 router.use('/:id', function(req, res, next) {
   IterationModel2

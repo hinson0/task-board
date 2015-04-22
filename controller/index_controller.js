@@ -2,9 +2,9 @@ var express = require('express');
 var router = express.Router();
 
 var PostModel = require('../model/post');
-var IterationModel = require('../model/iteration2');
-var VersionModel = require('../model/version2');
-var ProjectModel = require('../model/project2');
+var IterationModel = require('../model/iteration_model');
+var VersionModel = require('../model/version_model');
+var ProjectModel = require('../model/project_model');
 
 /* GET home page. */
 router.get('/', function(req, res) {

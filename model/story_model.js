@@ -32,7 +32,7 @@ var StoryModel = base.define('story', {
 });
 
 // 关系
-var UserModel = require('./user2');
+var UserModel = require('./user_model');
 StoryModel.belongsTo(UserModel, {foreignKey: 'leader'});
 
 module.exports = StoryModel;

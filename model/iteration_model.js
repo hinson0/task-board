@@ -62,7 +62,7 @@ IterationModel.statusClosed = 1;
 IterationModel.statusOffline = 99;
 
 // 关系
-var VersionModel = require('./version2');
+var VersionModel = require('./version_model');
 
 IterationModel.belongsTo(VersionModel, { foreignKey: 'version_id' });
 

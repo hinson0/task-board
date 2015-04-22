@@ -6,7 +6,7 @@ var VersionModel = require('../model/version');
 var IterationModel = require('../model/iteration');
 var Helper = require('../library/helper');
 
-var StatisticsService = require('../service/statistics');
+var StatisticsService = require('../service/statistics_service');
 
 router.get('/hours', checkVersionId);
 router.get('/hours', function(req, res) {

@@ -70,7 +70,7 @@ VersionModel.statusClosed = 1;
 VersionModel.statusDeleted = 99;
 
 // 关系
-var ProjectModel = require('./project2');
+var ProjectModel = require('./project_model');
 VersionModel.belongsTo(ProjectModel, { foreignKey: 'project_id' });
 
 module.exports = VersionModel;

@@ -1,8 +1,8 @@
 var express = require('express');
 var router = express.Router();
 
-var VersionModel2 = require('../model/version2');
-var ProjectModel2 = require('../model/project2');
+var VersionModel2 = require('../model/version_model');
+var ProjectModel2 = require('../model/project_model');
 
 // 检查id
 router.use('/:id', function (req, res, next) {

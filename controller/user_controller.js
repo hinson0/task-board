@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var UserService = require('../service/user');
+var UserService = require('../service/user_service');
 
 // 登陆
 router.post('/login', function (req, res) {
