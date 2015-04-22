@@ -11,8 +11,10 @@ var TaskFollowModel = require('../model/task_follow_model');
 var UserModel2 = require('../model/user_model');
 var TaskStatusModel = require('../model/task_status_model');
 var TaskHistoryModel = require('../model/task_history_model');
-var TaskService = require('../service/task_service');
 var TaskConcernedModel = require('../model/task_concerned_model');
+
+var TaskService = require('../service/task_service');
+var RouterService = require('../service/router_service');
 
 // 呈现列表
 router.get('/', function (req, res, next) {
@@ -88,8 +90,7 @@ router.post('/', function (req, res, next) { // 添加任务
       next();
     })
     .catch(function (err) {
-      res.status(500);
-      res.json(err.errors);
+      RouterService.json(err, res);
     });
 
 });
@@ -131,8 +132,7 @@ router.put('/:id', function (req, res, next) {
       next();
     })
     .catch(function (err) {
-      res.status(500);
-      res.json(err.errors);
+      RouterService.json(err, res);
     });
 });
 router.put('/:id', function (req) {
@@ -228,8 +228,7 @@ router.post('/:id/concerned', function (req, res) {
       res.json({msg: '关注成功'});
     })
     .catch(function (err) {
-      res.status(500);
-      res.json(err.errors);
+      RouterService.json(err, res);
     });
 });
 

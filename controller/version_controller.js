@@ -1,12 +1,14 @@
 var express = require('express');
 var router = express.Router();
 
-var VersionModel2 = require('../model/version_model');
-var ProjectModel2 = require('../model/project_model');
+var VersionModel = require('../model/version_model');
+var ProjectModel = require('../model/project_model');
+
+var RouterService = require('../service/router_service');
 
 // 检查id
 router.use('/:id', function (req, res, next) {
-  VersionModel2
+  VersionModel
     .find(req.params.id)
     .then(function (version) {
       if (version === null) {
@@ -23,7 +25,7 @@ router.use('/:id', function (req, res, next) {
 router.post('/', checkProject);
 router.post('/', checkPN);
 router.post('/', function (req, res) {
-  VersionModel2
+  VersionModel
     .build(req.body)
     .save()
     .then(function (version) {
@@ -41,14 +43,14 @@ router.get('/', function (req, res) {
   if (req.query.status) {
     where.status = req.query.status.split(',');
   } else {
-    where.status = VersionModel2.statusOnline;
+    where.status = VersionModel.statusOnline;
   }
   
-  VersionModel2
+  VersionModel
     .findAndCount({
       where: where,
       include: [
-        {model: ProjectModel2}
+        {model: ProjectModel}
       ],
       order: 'id DESC',
       offset: req.query.offset || 0,
@@ -88,8 +90,7 @@ router.put('/:id/toggle', function (req, res) {
       res.json({msg: '操作成功'});
     })
     .catch(function (err) {
-      res.status(500);
-      res.json(err.errors);
+      RouterService.json(err, res);
     });
 });
 
@@ -97,7 +98,7 @@ router.put('/:id/toggle', function (req, res) {
 router.delete('/:id', function (req, res) {
   req.version
     .updateAttributes({
-      status: VersionModel2.statusDeleted
+      status: VersionModel.statusDeleted
     })
     .then(function () {
       res.json({msg: '删除成功'});
@@ -105,7 +106,7 @@ router.delete('/:id', function (req, res) {
 });
 
 function checkPN(req, res, next) {
-  VersionModel2
+  VersionModel
     .find({
       where: {
         project_id: req.body.project_id,
@@ -122,7 +123,7 @@ function checkPN(req, res, next) {
     });
 }
 function checkProject(req, res, next) {
-  ProjectModel2
+  ProjectModel
     .find(req.body.project_id)
     .then(function (project) {
       if (project === null) {
