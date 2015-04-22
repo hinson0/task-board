@@ -10,7 +10,11 @@ var TaskFollowModel = base.define('task_follow', {
   },
   create_time: {
     type: Sequelize.INTEGER,
-  },
+  }
+}, {
+  classMethods: {
+    
+  }
 });
 
 module.exports = TaskFollowModel;

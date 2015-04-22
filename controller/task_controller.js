@@ -3,13 +3,13 @@ var router = express.Router();
 var moment = require('moment');
 var async = require('async');
 
-var IterationModel2 = require('../model/iteration_model');
-var TaskModel2 = require('../model/task_model');
-var StoryModel2 = require('../model/story_model');
-var VersionModel2 = require('../model/version_model');
-var TaskFollow2 = require('../model/task_follow_model');
+var IterationModel = require('../model/iteration_model');
+var TaskModel = require('../model/task_model');
+var StoryModel = require('../model/story_model');
+var VersionModel = require('../model/version_model');
+var TaskFollowModel = require('../model/task_follow_model');
 var UserModel2 = require('../model/user_model');
-var TaskStatusModel2 = require('../model/task_status_model');
+var TaskStatusModel = require('../model/task_status_model');
 var TaskHistoryModel = require('../model/task_history_model');
 var TaskService = require('../service/task_service');
 var TaskConcernedModel = require('../model/task_concerned_model');
@@ -31,7 +31,7 @@ router.get('/', function (req, res, next) {
 });
 router.get('/', function (req, res) {
   var where = {
-    status: TaskModel2.statusOnline, // 在线的任务
+    status: TaskModel.statusOnline, // 在线的任务
   };
   if (req.query.user_id) { // 获取某个用户
     where.user_id = req.query.user_id;
@@ -40,13 +40,13 @@ router.get('/', function (req, res) {
     where.iteration_id = req.query.iteration_id;
   }
 
-  TaskModel2
+  TaskModel
     .findAll({
       where: where,
       include: [
         {model: UserModel2},
-        {model: TaskStatusModel2},
-        {model: TaskFollow2},
+        {model: TaskStatusModel},
+        {model: TaskFollowModel},
         {model: TaskHistoryModel}
       ],
       order: 'id DESC',
@@ -66,7 +66,7 @@ router.post('/', checkPrevTaskIds);
 router.post('/', checkTaskStausId);
 router.post('/', checkVersionId);
 router.post('/', function (req, res, next) { // 添加任务
-  TaskModel2
+  TaskModel
     .build({
       project_id: req.version.project_id,
       version_id: req.version.id,
@@ -95,7 +95,7 @@ router.post('/', function (req, res, next) { // 添加任务
 });
 router.post('/', function (req) { // 前置任务添加
   req.prevTaskIds.forEach(function (prevTaskId) {
-    TaskFollow2
+    TaskFollowModel
       .build({
         task_id: req.taskId,
         prev_task_id: prevTaskId,
@@ -139,7 +139,7 @@ router.put('/:id', function (req) {
   async.series([
     // 清除老的
     function (callback) {
-      TaskFollow2
+      TaskFollowModel
         .findAll({
           where: {task_id: req.task.id}
         })
@@ -153,7 +153,7 @@ router.put('/:id', function (req) {
     // 新增
     function () {
       req.prevTaskIds.forEach(function (prevTaskId) {
-        TaskFollow2
+        TaskFollowModel
           .build({
             task_id: req.task.id,
             prev_task_id: prevTaskId,
@@ -170,7 +170,7 @@ router.delete('/:id', checkTaskId);
 router.delete('/:id', function (req, res) {
   req.task
     .updateAttributes({
-      status: TaskModel2.statusOffline
+      status: TaskModel.statusOffline
     })
     .then(function () {
       res.json({msg: '删除成功'});
@@ -187,15 +187,13 @@ router.put('/:id/status', function (req, res, next) {
 });
 router.put('/:id/status', function (req) { // 前置任务完成则推送99U
   // 判断是否开发完成
-  if (!TaskStatusModel2.isDragToComplete(req.body.task_status_id)) {
+  if (!TaskStatusModel.isDragToComplete(req.body.task_status_id)) {
     return;
   }
 
   // 发送
-  async.parallel([
-    TaskService.send91umsg(req.task),
-    TaskService.sendConcernedMsg(req.task)
-  ]);
+  TaskService.send91umsg(req.task);
+  TaskService.sendConcernedMsg(req.task);
 });
 
 // 关注任务
@@ -248,7 +246,7 @@ function checkUserId(req, res, next) {
     });
 }
 function checkTaskStausId(req, res, next) {
-  TaskStatusModel2
+  TaskStatusModel
     .find(req.body.task_status_id)
     .then(function (taskStatus) {
       if (taskStatus === null) {
@@ -260,7 +258,7 @@ function checkTaskStausId(req, res, next) {
     });
 }
 function checkVersionId(req, res, next) {
-  VersionModel2
+  VersionModel
     .find(req.iteration.version_id)
     .then(function (version) {
       if (version === null) {
@@ -273,7 +271,7 @@ function checkVersionId(req, res, next) {
     });
 }
 function checkStoryId(req, res, next) {
-  StoryModel2
+  StoryModel
     .find(req.param('story_id'))
     .then(function (story) {
       if (story === null) {
@@ -286,7 +284,7 @@ function checkStoryId(req, res, next) {
     });
 }
 function checkIterationId(req, res, next) {
-  IterationModel2
+  IterationModel
     .find(req.param('iteration_id'))
     .then(function (iteration) {
       if (iteration === null) {
@@ -304,7 +302,7 @@ function checkIterationId(req, res, next) {
     });
 }
 function checkTaskId(req, res, next) {
-  TaskModel2
+  TaskModel
     .find(req.params.id)
     .then(function (task) {
       if (task === null) {

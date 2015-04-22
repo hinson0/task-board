@@ -26,17 +26,19 @@ var TaskService = {
 
     // 查找任务
     var findTasks = function(taskFollows, callback) {
-      async.map(taskFollows, function(taskFollow, eachCb) {
+      var tasks = [];
+      taskFollows.forEach(function (taskFollow) {
         TaskModel2
           .find(taskFollow.task_id)
           .then(function(task) {
-            eachCb(null, task);
+            if (task !== null) {
+              tasks.push(task);
+            }
           });
-      }, function(err, tasks) {
-        callback(null, tasks);
       });
+      callback(null, tasks);
     };
-
+    
     // 查找用户
     var findUsers = function(tasks, callback) {
       prevTask
@@ -44,34 +46,55 @@ var TaskService = {
         .then(function(prevTaskUser) {
           tasks.forEach(function(task) {
             UserModel2
-            .find(task.user_id)
-            .then(function(user) {
-              var msg91u = new Msg91U(user.worker_num);
-              var msg = '前置任务【' + prevTask.desc + '】' + prevTaskUser.name + '已完成，你可以开始【' + task.desc + '】了，干巴爹...';
-              msg91u.send(msg);
-            });
+              .find(task.user_id)
+              .then(function(user) {
+                var msg91u = new Msg91U(user.worker_num);
+                var msg = '前置任务【' + prevTask.desc + '】' + prevTaskUser.name + '已完成，你可以开始【' + task.desc + '】了，干巴爹...';
+                msg91u.send(msg);
+              });
           });
         });
       callback(null);
     };
-
+    
     async.waterfall([findTaskFollows, findTasks, findUsers]);
   },
   sendConcernedMsg: function (task) {
-//    var findTaskConcerned = function () {
-//      TaskConcerned
-//        .findAll({
-//          where: {
-//            task_id: task.id
-//          }
-//        })
-//        .then(function (taskConcerned) {
-//
-//        });
-//    };
-//    async.waterfall([
-//      
-//    ]);
+    var findTaskUser = function (callback) {
+      task
+        .getUser()
+        .then(function (user) {
+          callback(null, user);
+        });
+    };
+    
+    var findTaskConcerned = function (taskUser, callback) {
+      TaskConcerned
+        .findAll({
+          where: {
+            task_id: task.id
+          }
+        })
+        .then(function (taskConcerneds) {
+          callback(null, taskConcerneds, taskUser);
+        });
+    };
+    
+    var findUsers = function (TaskConcerneds, taskUser, callback) {
+      async.each(TaskConcerneds, function (taskConcerned, cb) {
+        UserModel2
+          .find(taskConcerned.user_id)
+          .then(function (user) {
+            var msg91u = new Msg91U(user.worker_num);
+            var msg = '您关注的任务【' + task.desc + '】' + taskUser.name + '已完成，干巴爹...';
+            msg91u.send(msg);
+          });
+        cb(null);
+      });
+      callback(null);
+    };
+    
+    async.waterfall([findTaskUser, findTaskConcerned, findUsers]);
   }
 };
 
