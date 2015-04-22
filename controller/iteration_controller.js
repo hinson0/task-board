@@ -52,7 +52,7 @@ router.use('/:id', function(req, res, next) {
     .find(req.params.id)
     .then(function(iteration) {
       if (iteration === null) {
-        res.status(404);
+        res.status(400);
         res.json({msg: '迭代不存在'});
       } else {
         req.iteration = iteration;
@@ -112,7 +112,7 @@ function checkVersionId(req, res, next) { // 检查版本ID是否存在
       if (version) {
         next();
       } else {
-        res.status(404);
+        res.status(400);
         res.json({msg: '版本号不存在'});
       }
     });
@@ -127,7 +127,7 @@ function checkUniqVN(req, res, next) { // 校验迭代名称是否存在
     })
     .then(function(iteration) {
       if (iteration) {
-        res.status(404);
+        res.status(400);
         res.json({msg: '迭代名称存在'});
       } else {
         next();
