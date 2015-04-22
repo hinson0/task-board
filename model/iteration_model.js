@@ -68,7 +68,7 @@ var IterationModel = base.define('iteration', {
 // 状态
 IterationModel.statusOnline = 0; // 打开
 IterationModel.statusClosed = 1; // 关闭
-IterationModel.statusOffline = 99; // 删除
+IterationModel.statusDeleted = 99; // 删除
 
 // 关系
 var VersionModel = require('./version_model');

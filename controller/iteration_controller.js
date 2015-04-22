@@ -2,13 +2,53 @@ var express = require('express');
 var router = express.Router();
 var moment = require('moment');
 
-var VersionModel2 = require('../model/version_model');
-var IterationModel2 = require('../model/iteration_model');
-var IterationService2 = require('../service/iteration_service');
+var VersionModel = require('../model/version_model');
+var IterationModel = require('../model/iteration_model');
+var ProjectModel = require('../model/project_model');
 var RouterService = require('../service/router_service');
 
+// 列表
+router.get('/', function(req, res) {
+  var where = {};
+  if (req.query.status) {
+    where.status = req.query.status.split(',');
+  } else {
+    where.status = IterationModel.statusOnline;
+  }
+  if (req.query.version_id) {
+    where.version_id = req.query.version_id;
+  }
+  IterationModel
+    .findAndCount({
+      where: where,
+      offset: req.query.offset || 0,
+      limit: req.query.limit || 10,
+      order: 'id DESC',
+      include: [
+        {model: VersionModel, include: [{model: ProjectModel}]}
+      ]
+    })
+    .then(function(result) {
+      res.json(result);
+    });
+});
+
+// 新增
+router.post('/', checkVersionId, checkUniqVN);
+router.post('/', function(req, res) {
+  IterationModel
+    .build(req.body)
+    .save()
+    .then(function(iteration) {
+      res.json({id: iteration.id});
+    })
+    .catch(function(err) {
+      RouterService.json(err, res);
+    });
+});
+
 router.use('/:id', function(req, res, next) {
-  IterationModel2
+  IterationModel
     .find(req.params.id)
     .then(function(iteration) {
       if (iteration === null) {
@@ -18,27 +58,6 @@ router.use('/:id', function(req, res, next) {
         req.iteration = iteration;
         next();
       }
-    });
-});
-
-// 列表
-router.get('/', function(req, res, next) {
-  IterationService2.formatList(req.query, function(error, result) {
-    res.json(result);
-  });
-});
-
-// 新增
-router.post('/', checkVersionId, checkUniqVN);
-router.post('/', function(req, res) {
-  IterationModel2
-    .build(req.body)
-    .save()
-    .then(function(iteration) {
-      res.json({id: iteration.id});
-    })
-    .catch(function(err) {
-      RouterService.json(err, res);
     });
 });
 
@@ -78,7 +97,7 @@ router.put('/:id/toggle', function (req, res) {
 // 删除
 router.delete('/:id', function(req, res) {
   var iteration = req.iteration;
-  iteration.status = IterationModel2.statusOffline;
+  iteration.status = IterationModel.statusDeleted;
   iteration
     .save()
     .then(function() {
@@ -87,7 +106,7 @@ router.delete('/:id', function(req, res) {
 });
 
 function checkVersionId(req, res, next) { // 检查版本ID是否存在
-  VersionModel2
+  VersionModel
     .find(req.body.version_id)
     .then(function(version) {
       if (version) {
@@ -99,7 +118,7 @@ function checkVersionId(req, res, next) { // 检查版本ID是否存在
     });
 }
 function checkUniqVN(req, res, next) { // 校验迭代名称是否存在
-  IterationModel2
+  IterationModel
     .find({
       where: {
         version_id: req.body.version_id,
