@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 
-var PostModel = require('../model/post');
+var PostModel = require('../model/post_model');
 var IterationModel = require('../model/iteration_model');
 var VersionModel = require('../model/version_model');
 var ProjectModel = require('../model/project_model');
