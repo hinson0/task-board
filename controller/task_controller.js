@@ -8,13 +8,14 @@ var TaskModel = require('../model/task_model');
 var StoryModel = require('../model/story_model');
 var VersionModel = require('../model/version_model');
 var TaskFollowModel = require('../model/task_follow_model');
-var UserModel2 = require('../model/user_model');
+var UserModel = require('../model/user_model');
 var TaskStatusModel = require('../model/task_status_model');
 var TaskHistoryModel = require('../model/task_history_model');
 var TaskConcernedModel = require('../model/task_concerned_model');
 
 var TaskService = require('../service/task_service');
 var RouterService = require('../service/router_service');
+var CsvService = require('../service/csv_service');
 
 // 呈现列表
 router.get('/', function (req, res, next) {
@@ -33,7 +34,7 @@ router.get('/', function (req, res, next) {
 });
 router.get('/', function (req, res) {
   var where = {
-    status: TaskModel.statusOnline, // 在线的任务
+    status: TaskModel.statusOnline // 在线的任务
   };
   if (req.query.user_id) { // 获取某个用户
     where.user_id = req.query.user_id;
@@ -46,12 +47,12 @@ router.get('/', function (req, res) {
     .findAll({
       where: where,
       include: [
-        {model: UserModel2},
+        {model: UserModel},
         {model: TaskStatusModel},
         {model: TaskFollowModel},
         {model: TaskHistoryModel}
       ],
-      order: 'id DESC',
+      order: 'status_id ASC',
       offset: req.query.offset || 0,
       limit: req.query.size || 10
     })
@@ -113,29 +114,7 @@ router.put('/:id', checkVersionId);
 router.put('/:id', checkUserId);
 router.put('/:id', checkStoryId);
 router.put('/:id', checkPrevTaskIds);
-router.put('/:id', function (req, res, next) {
-  req.task
-    .updateAttributes({
-      project_id: req.version.project_id,
-      version_id: req.version.id,
-      iteration_id: req.iteration.id,
-      story_id: req.story.id,
-      user_id: req.body.user_id,
-      desc: req.body.desc,
-      is_new: req.body.is_new,
-      is_challenging: req.body.is_challenging,
-      priority: req.body.priority,
-      estimated_time: req.body.estimated_time,
-    })
-    .then(function (task) {
-      res.json({id: task.id});
-      next();
-    })
-    .catch(function (err) {
-      RouterService.json(err, res);
-    });
-});
-router.put('/:id', function (req) {
+router.put('/:id', function (req, res, next) { // 删除老的关联
   async.series([
     // 清除老的
     function (callback) {
@@ -159,10 +138,34 @@ router.put('/:id', function (req) {
             prev_task_id: prevTaskId,
             create_time: moment().unix()
           })
-          .save();
+          .save()
+          .then(function () {
+            next();
+          });
       });
     }
   ]);
+});
+router.put('/:id', function (req, res) {
+  req.task
+    .updateAttributes({
+      project_id: req.version.project_id,
+      version_id: req.version.id,
+      iteration_id: req.iteration.id,
+      story_id: req.story.id,
+      user_id: req.body.user_id,
+      desc: req.body.desc,
+      is_new: req.body.is_new,
+      is_challenging: req.body.is_challenging,
+      priority: req.body.priority,
+      estimated_time: req.body.estimated_time,
+    })
+    .then(function (task) {
+      res.json({id: task.id});
+    })
+    .catch(function (err) {
+      RouterService.json(err, res);
+    });
 });
 
 // 删除任务
@@ -181,8 +184,11 @@ router.delete('/:id', function (req, res) {
 router.put('/:id/status', checkTaskId);
 router.put('/:id/status', checkTaskStausId);
 router.put('/:id/status', function (req, res, next) {
-  req.task.drag(req.body.task_status_id);
-  res.json({id: req.task.id});
+  req.task
+    .drag(req.body.task_status_id)
+    .then(function (task) {
+      res.json({id: task.id});
+    });
   next();
 });
 router.put('/:id/status', function (req) { // 前置任务完成则推送99U
@@ -232,8 +238,15 @@ router.post('/:id/concerned', function (req, res) {
     });
 });
 
+// 上传
+router.post('/upload', function (req, res) {
+  CsvService.upload(req.files.csv, function (err, csv) {
+    res.json({id: csv.id});
+  });
+});
+
 function checkUserId(req, res, next) {
-  UserModel2
+  UserModel
     .find(req.param('user_id'))
     .then(function (user) {
       if (user === null) {

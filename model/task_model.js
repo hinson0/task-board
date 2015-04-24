@@ -17,7 +17,7 @@ var TaskModel = base.define('task', {
     type: Sequelize.INTEGER,
   },
   iteration_id: {
-    type: Sequelize.INTEGER,
+    type: Sequelize.INTEGER,  
   },
   story_id: {
     type: Sequelize.INTEGER,

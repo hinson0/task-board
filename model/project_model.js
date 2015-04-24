@@ -13,6 +13,7 @@ var ProjectModel = base.define('project', {
   },
   create_time: {
     type: Sequelize.INTEGER,
+    defaultValue: moment().unix()
   },
 });
 
