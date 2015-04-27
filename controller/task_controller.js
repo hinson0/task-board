@@ -12,6 +12,7 @@ var UserModel = require('../model/user_model');
 var TaskStatusModel = require('../model/task_status_model');
 var TaskHistoryModel = require('../model/task_history_model');
 var TaskConcernedModel = require('../model/task_concerned_model');
+var StoryModel = require('../model/story_model');
 
 var TaskService = require('../service/task_service');
 var RouterService = require('../service/router_service');
@@ -50,7 +51,9 @@ router.get('/', function (req, res) {
         {model: UserModel},
         {model: TaskStatusModel},
         {model: TaskFollowModel},
-        {model: TaskHistoryModel}
+        {model: TaskHistoryModel},
+        {model: StoryModel},
+        {model: IterationModel, where: {status: IterationModel.statusOnline}}
       ],
       order: 'status_id ASC',
       offset: req.query.offset || 0,
