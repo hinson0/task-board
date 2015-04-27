@@ -114,7 +114,28 @@ router.put('/:id', checkVersionId);
 router.put('/:id', checkUserId);
 router.put('/:id', checkStoryId);
 router.put('/:id', checkPrevTaskIds);
-router.put('/:id', function (req, res, next) { // 删除老的关联
+router.put('/:id', function (req, res, next) {
+  req.task
+    .updateAttributes({
+      project_id: req.version.project_id,
+      version_id: req.version.id,
+      iteration_id: req.iteration.id,
+      story_id: req.story.id,
+      user_id: req.body.user_id,
+      desc: req.body.desc,
+      is_new: req.body.is_new,
+      is_challenging: req.body.is_challenging,
+      priority: req.body.priority,
+      estimated_time: req.body.estimated_time,
+    })
+    .then(function (task) {
+      next();
+    })
+    .catch(function (err) {
+      RouterService.json(err, res);
+    });
+});
+router.put('/:id', function (req, res) { // 删除老的关联
   async.series([
     // 清除老的
     function (callback) {
@@ -130,42 +151,22 @@ router.put('/:id', function (req, res, next) { // 删除老的关联
         });
     },
     // 新增
-    function () {
+    function (callback) {
       req.prevTaskIds.forEach(function (prevTaskId) {
         TaskFollowModel
-          .build({
+          .create({
             task_id: req.task.id,
             prev_task_id: prevTaskId,
             create_time: moment().unix()
           })
-          .save()
           .then(function () {
-            next();
+              callback(null);
           });
       });
     }
-  ]);
-});
-router.put('/:id', function (req, res) {
-  req.task
-    .updateAttributes({
-      project_id: req.version.project_id,
-      version_id: req.version.id,
-      iteration_id: req.iteration.id,
-      story_id: req.story.id,
-      user_id: req.body.user_id,
-      desc: req.body.desc,
-      is_new: req.body.is_new,
-      is_challenging: req.body.is_challenging,
-      priority: req.body.priority,
-      estimated_time: req.body.estimated_time,
-    })
-    .then(function (task) {
-      res.json({id: task.id});
-    })
-    .catch(function (err) {
-      RouterService.json(err, res);
-    });
+  ], function () {
+    res.json({id: req.task.id});
+  });
 });
 
 // 删除任务
