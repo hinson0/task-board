@@ -22,8 +22,8 @@ router.get('/', function(req, res) {
     .findAndCount({
       where: where,
       offset: req.query.offset || 0,
-      limit: req.query.limit || 10,
-      order: 'id DESC',
+      limit: req.query.size || 10,
+      order: 'id ASC',
       include: [
         {model: VersionModel, include: [{model: ProjectModel}]}
       ]
