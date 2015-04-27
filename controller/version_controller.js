@@ -1,8 +1,10 @@
 var express = require('express');
 var router = express.Router();
+var async = require('async');
 
 var VersionModel = require('../model/version_model');
 var ProjectModel = require('../model/project_model');
+var IterationModel = require('../model/iteration_model');
 
 var RouterService = require('../service/router_service');
 
@@ -83,14 +85,39 @@ router.put('/:id', function (req, res) {
 });
 
 // 关闭
-router.put('/:id/toggle', function (req, res) {
+router.put('/:id/toggle', function (req, res, next) {
   req.version
     .toggle(req.query.status)
     .then(function (version) {
       res.json({msg: '操作成功'});
+      next();
     })
     .catch(function (err) {
       RouterService.json(err, res);
+    });
+});
+router.put('/:id/toggle', function (req) {
+  IterationModel
+    .findAll({
+      where: {version_id: req.version.id}
+    })
+    .then(function (iterations) {
+      async.each(iterations, function (iteration, callback) {
+        iteration
+          .updateAttributes({
+            status: IterationModel.statusClosed
+          })
+          .then(function (iteration) {
+            callback();
+          })
+          .catch(function (err) {
+            callback(err.errors[0].message);
+          });
+      }, function (err) {
+        if (err) {
+          throw err;
+        }
+      });
     });
 });
 
