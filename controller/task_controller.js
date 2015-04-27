@@ -137,6 +137,14 @@ router.put('/:id', function (req, res, next) {
 });
 router.put('/:id', function (req, res) { // 删除老的关联
   async.series([
+    // 是否有前置任务
+    function (callback) {
+      if (req.prevTaskIds.length === 0) {
+        callback(true);
+      } else {
+        callback(null);
+      }
+    },
     // 清除老的
     function (callback) {
       TaskFollowModel
