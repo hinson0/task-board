@@ -49,7 +49,7 @@ var TaskService = {
               .find(task.user_id)
               .then(function(user) {
                 var msg91u = new Msg91U(user.worker_num);
-                var msg = '前置任务【' + prevTask.desc + '】' + prevTaskUser.name + '已完成，你可以开始【' + task.desc + '】了，干巴爹...';
+                var msg = '前置任务【' + prevTask.desc + '】' + prevTaskUser.name + '已完成，你可以开始【' + task.desc + '】了，加油哟';
                 msg91u.send(msg);
               });
           });
@@ -86,7 +86,7 @@ var TaskService = {
           .find(taskConcerned.user_id)
           .then(function (user) {
             var msg91u = new Msg91U(user.worker_num);
-            var msg = '您关注的任务【' + task.desc + '】' + taskUser.name + '已完成，干巴爹...';
+            var msg = '您关注的任务【' + task.desc + '】' + taskUser.name + '已完成';
             msg91u.send(msg);
           });
         cb(null);
