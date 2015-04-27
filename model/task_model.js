@@ -3,11 +3,6 @@ var Sequelize = require('sequelize');
 var moment = require('moment');
 var base = require('./base');
 
-var UserModel = require('./user_model');
-var TaskStatusModel = require('./task_status_model');
-var TaskFollowModel = require('./task_follow_model');
-var TaskHistoryModel = require('./task_history_model');
-
 // 类
 var TaskModel = base.define('task', {
   project_id: {
@@ -80,9 +75,18 @@ TaskModel.statusOnline = 0;
 TaskModel.statusOffline = 99;
 
 // 关系
+var UserModel = require('./user_model');
+var TaskStatusModel = require('./task_status_model');
+var TaskFollowModel = require('./task_follow_model');
+var TaskHistoryModel = require('./task_history_model');
+var IterationModel = require('./iteration_model');
+var StoryModel = require('./story_model');
+
 TaskModel.belongsTo(UserModel, {foreignKey: 'user_id'});
 TaskModel.belongsTo(TaskStatusModel, {foreignKey: 'status_id'});
 TaskModel.hasMany(TaskFollowModel, {foreignKey: 'task_id'});
 TaskModel.hasMany(TaskHistoryModel, {foreignKey: 'task_id'});
+TaskModel.belongsTo(IterationModel, {foreignKey: 'iteration_id'});
+TaskModel.belongsTo(StoryModel, {foreignKey: 'story_id'});
 
 module.exports = TaskModel;
