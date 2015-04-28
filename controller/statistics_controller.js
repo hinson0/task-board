@@ -2,18 +2,12 @@ var express = require('express');
 var router = express.Router();
 var async = require('async');
 
-var TaskModel = require('../model/task');
-var IterationModel = require('../model/iteration');
-var Helper = require('../library/helper');
-
 var VersionModel = require('../model/version_model');
 var RouterService = require('../service/router_service');
-var TaskModel2 = require('../model/task_model');
-var UserModel2 = require('../model/user_model');
-var StoryModel2 = require('../model/story_model');
-var IterationModel2 = require('../model/iteration_model');
-
-var StatisticsService = require('../service/statistics_service');
+var TaskModel = require('../model/task_model');
+var UserModel = require('../model/user_model');
+var StoryModel = require('../model/story_model');
+var IterationModel = require('../model/iteration_model');
 
 // 工时统计
 router.get('/hours', checkVersionId);
@@ -25,12 +19,13 @@ router.get('/hours', function (req, res) { // 获取统计工时
   if (req.query.iteration_id) { // 支持迭代id
     where.iteration_id = req.query.iteration_id;
   }
-  TaskModel2
+  TaskModel
     .findAll({
       where: where,
       include: [
-        {model: UserModel2}
-      ]
+        {model: UserModel}
+      ],
+      order: 'user_id ASC'
     })
     .then(function (tasks) {
       res.json(tasks);
@@ -53,7 +48,7 @@ router.get('/story', function (req, res) {
       if (req.query.version_id) { // 支持版本id
         where.version_id = req.version.id;
       }
-      StoryModel2
+      StoryModel
         .findAll({
           where: {version_id: req.version.id}
         })
@@ -74,13 +69,12 @@ router.get('/story', function (req, res) {
         if (req.query.iteration_id) {
           where.iteration_id = req.query.iteration_id;
         }
-        TaskModel2
+        TaskModel
           .findAll({
-            where: where
+            where: where,
           })
           .then(function (tasks) {
             story.setDataValue('tasks', tasks);
-            console.log(story);
             cb(null, story);
           });
       }, function (err, stories) {
@@ -94,32 +88,6 @@ router.get('/story', function (req, res) {
 });
 
 // 燃尽图
-//router.get('/bdc', function(req, res, next) {
-//    if (req.query.version_id) {
-//        checkVersionId(req, res, next);
-//    } else if (req.query.iteration_id) {
-//        checkIterationId(req, res, next);
-//    } else {
-//        res.status(404);
-//        res.json({msg: '非法参数'});
-//    }
-//});
-//router.get('/bdc', function(req, res, next) {
-//    if (req.query.version_id) {
-//        StatisticsService.dbcByVersionId(req.version.id, function(result) {
-//            res.json(result);
-//        });
-//    } else {
-//        next();
-//    }
-//}, function(req, res) {
-//    if (req.query.iteration_id) {
-//        StatisticsService.dbcByIterationId(req.iteration.id, function(result) {
-//            res.json(result);
-//        })
-//    }
-//});
-
 router.get('/bdc', checkVersionId);
 router.get('/bdc', function (req, res, next) {
   if (req.query.iteration_id) {
@@ -129,7 +97,30 @@ router.get('/bdc', function (req, res, next) {
   }
 });
 router.get('/bdc', function (req, res) {
-
+  async.waterfall([
+    function (callback) { // 获取X（时间）坐标
+      var x = ['开始'];
+      
+    },
+    function (callback) { // 获取任务
+      var where = {
+        version_id: req.version.id
+      };
+      TaskModel
+        .findAll({
+          where: where
+        })
+        .then(function (tasks) {
+          callback(null, tasks);
+        });
+    },
+    function (tasks, callback) { // 计算任务
+      
+    }
+  ], function (err, result) {
+    if (err) throw err;
+    res.json(result);
+  });
 });
 
 function isGetByVersionId(req) {
@@ -156,7 +147,7 @@ function checkVersionId(req, res, next) { // 检查版本
     });
 }
 function checkIterationId(req, res, next) { // 检查迭代
-  IterationModel2
+  IterationModel
     .find(req.query.iteration_id)
     .then(function (iteration) {
       if (iteration === null) {
