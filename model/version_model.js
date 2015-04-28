@@ -59,6 +59,17 @@ var VersionModel = base.define('version', {
         this.status = 0;
         return this.save();
       }
+    },
+    getDates: function () { // 获取版本对应的时间，去除休息段的时间
+      var startDate = moment(this.start_time, 'X').format('YYYYMMDD');
+      var endDate = moment(this.end_time, 'X').format('YYYYMMDD');
+      var dates = [];
+      for (var i = startDate; i <= endDate; i++) {
+        if (this.relaxed.indexOf(i) === -1) {
+          dates.push(i);
+        }
+      }
+      return dates;
     }
   }
 });

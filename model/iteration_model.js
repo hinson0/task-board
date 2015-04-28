@@ -61,6 +61,15 @@ var IterationModel = base.define('iteration', {
         this.status = 0;
         return this.save();
       }
+    },
+    getDates: function () {
+      var startDate = moment(this.start_time, 'X').format('YYYYMMDD');
+      var endDate = moment(this.end_time, 'X').format('YYYYMMDD');
+      var dates = [];
+      for (var i = startDate; i <= endDate; i++) {
+        dates.push(i);
+      }
+      return dates;
     }
   }
 });

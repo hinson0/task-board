@@ -67,6 +67,9 @@ var TaskModel = base.define('task', {
       }
       this.status_id = status_id;
       return this.save();
+    },
+    isCompleted: function () { // 是否完成
+      return this.status_id === TaskStatusModel.COMPLETE;
     }
   }
 });

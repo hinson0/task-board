@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var async = require('async');
+var moment = require('moment');
 
 var VersionModel = require('../model/version_model');
 var RouterService = require('../service/router_service');
@@ -99,10 +100,25 @@ router.get('/bdc', function (req, res, next) {
 router.get('/bdc', function (req, res) {
   async.waterfall([
     function (callback) { // 获取X（时间）坐标
-      var x = ['开始'];
-      
+      var dates = [];
+      if (req.query.iteration_id) {
+        dates = req.iteration.getDates();
+      } else {
+        dates = req.version.getDates();
+      }
+      callback(null, dates);
     },
-    function (callback) { // 获取任务
+    function (dates, callback) { // 改造时间格式
+      /**
+       * 由['20150101', '20150102', ...] => 弄成{20150101: 0, 20150102: 0, 20150103: 0, ...}
+       */
+      var newDates = {};
+      dates.forEach(function (date) {
+        newDates[date] = 0;
+      });
+      callback(null, newDates);
+    },
+    function (dates, callback) { // 获取任务
       var where = {
         version_id: req.version.id
       };
@@ -111,14 +127,59 @@ router.get('/bdc', function (req, res) {
           where: where
         })
         .then(function (tasks) {
-          callback(null, tasks);
+          callback(null, dates, tasks);
         });
     },
-    function (tasks, callback) { // 计算任务
-      
+    function (dates, tasks, callback) { // 计算任务
+      var totalHours = 0;
+      var msgs = [];
+      async.each(tasks, function (task, cb) {
+        msgs.push('-----');
+        
+        // 计算总估时
+        totalHours += task.estimated_time;
+        
+        // 没有完成，则忽略
+        if (!task.isCompleted()) {
+          var msg = '任务[' + task.desc + ']尚未完成。';
+          msgs.push(msg);
+          cb(null);
+          return;
+        }
+        
+        // 检查结束时间
+        var endDate = moment(task.end_time, 'X');
+        if (!endDate.isValid()) {
+          var msg = '任务[' + task.desc + ']的结束时间为[' + task.end_time + ']解析错误，因此忽略';
+          msgs.push(msg);
+          cb(null);
+          return;
+        }
+        
+        var format = endDate.format('YYYYMMDD');
+        var msg = '任务[' + task.desc + ']开始统计工时，工时为[' + task.estimated_time + ']，时间为[' + format + ']';
+        msgs.push(msg);
+        
+        // 计算完成工时
+        var msg = '时间[' + format + ']完成任务[' + task.desc + ']，获得[' + task.estimated_time + ']小时的统计。';
+        msgs.push(msg);
+        
+        if (format in dates) {
+          dates[format] += task.estimated_time;
+        } else {
+          dates[format] = task.estimated_time;
+        }
+        cb(null);
+      }, function (err) {
+        callback(err, dates, totalHours, msgs);
+      });
     }
-  ], function (err, result) {
+  ], function (err, dates, totalHours, msgs) {
     if (err) throw err;
+    var result = {total: totalHours, details: dates};
+    if (req.query.debug) {
+      result.msgs = msgs;
+    }
     res.json(result);
   });
 });
