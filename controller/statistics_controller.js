@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var async = require('async');
 var moment = require('moment');
+var querystring = require('querystring');
 
 var VersionModel = require('../model/version_model');
 var RouterService = require('../service/router_service');
@@ -112,25 +113,28 @@ router.get('/bdc', function (req, res) {
       /**
        * 由['20150101', '20150102', ...] => 弄成{20150101: 0, 20150102: 0, 20150103: 0, ...}
        */
-      var newDates = {};
+      var details = {};
       dates.forEach(function (date) {
-        newDates[date] = 0;
+        details[date] = 0;
       });
-      callback(null, newDates);
+      callback(null, dates, details);
     },
-    function (dates, callback) { // 获取任务
+    function (dates, details, callback) { // 获取任务
       var where = {
         version_id: req.version.id
       };
+      if (req.query.iteration_id) {
+        where.iteration_id = req.query.iteration_id;
+      }
       TaskModel
         .findAll({
           where: where
         })
         .then(function (tasks) {
-          callback(null, dates, tasks);
+          callback(null, dates, details, tasks);
         });
     },
-    function (dates, tasks, callback) { // 计算任务
+    function (dates, details, tasks, callback) { // 计算任务
       var totalHours = 0;
       var msgs = [];
       async.each(tasks, function (task, cb) {
@@ -160,23 +164,27 @@ router.get('/bdc', function (req, res) {
         var msg = '任务[' + task.desc + ']开始统计工时，工时为[' + task.estimated_time + ']，时间为[' + format + ']';
         msgs.push(msg);
         
+        // 判断时间是否在范围
+        if (!(format in details)) {
+          var msg = '任务[' + task.desc + ']，工时为[' + task.estimated_time + ']，不在时间段内[' + dates.toString() + ']，因此忽略统计。';
+          msgs.push(msg);
+          cb(null);
+          return;
+        }
+        
         // 计算完成工时
         var msg = '时间[' + format + ']完成任务[' + task.desc + ']，获得[' + task.estimated_time + ']小时的统计。';
         msgs.push(msg);
+        details[format] += task.estimated_time;
         
-        if (format in dates) {
-          dates[format] += task.estimated_time;
-        } else {
-          dates[format] = task.estimated_time;
-        }
         cb(null);
       }, function (err) {
-        callback(err, dates, totalHours, msgs);
+        callback(err, details, totalHours, msgs);
       });
     }
-  ], function (err, dates, totalHours, msgs) {
+  ], function (err, details, totalHours, msgs) {
     if (err) throw err;
-    var result = {total: totalHours, details: dates};
+    var result = {total: totalHours, details: details};
     if (req.query.debug) {
       result.msgs = msgs;
     }
