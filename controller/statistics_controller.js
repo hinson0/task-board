@@ -132,17 +132,6 @@ router.get('/bdc', function (req, res) {
 
 });
 
-function checkIterationId(req, res, next) {
-    IterationModel.getById(req.query.iteration_id, function(iteration) {
-        if (Helper.isEmptyObj(iteration)) {
-            res.status(404);
-            res.json({msg: '迭代记录不存在'});
-        } else {
-            req.iteration = iteration;
-            next();
-        }
-    });
-}
 function isGetByVersionId(req) {
     if (req.query.version_id && !req.query.recently) {
         return true;
