@@ -32,7 +32,6 @@ app.use(function(req, res, next) {
 
 // 路由
 var siteController = require('./controller/index_controller');
-var users = require('./controller/users');
 var userController = require('./controller/user_controller');
 var projectController = require('./controller/project_controller');
 var versionController = require('./controller/version_controller');
@@ -43,7 +42,6 @@ var taskController = require('./controller/task_controller');
 var statisticController = require('./controller/statistics_controller');
 
 app.use('/', siteController);
-app.use('/users', users);
 app.use('/user', userController);
 app.use('/projects', projectController);
 app.use('/versions', versionController);
