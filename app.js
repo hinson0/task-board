@@ -31,23 +31,25 @@ app.use(function(req, res, next) {
 });
 
 // 路由
-var siteController = require('./controller/index_controller');
-var userController = require('./controller/user_controller');
-var projectController = require('./controller/project_controller');
-var versionController = require('./controller/version_controller');
-var iterationController = require('./controller/iteration_controller');
-var storyController = require('./controller/story_controller');
-var taskController = require('./controller/task_controller');
-var statisticController = require('./controller/statistics_controller');
+var SiteController = require('./controller/index_controller');
+var UserController = require('./controller/user_controller');
+var ProjectController = require('./controller/project_controller');
+var VersionController = require('./controller/version_controller');
+var IterationController = require('./controller/iteration_controller');
+var StoryController = require('./controller/story_controller');
+var TaskController = require('./controller/task_controller');
+var TaskStatusController = require('./controller/task_status_controller');
+var StatisticController = require('./controller/statistics_controller');
 
-app.use('/', siteController);
-app.use('/user', userController);
-app.use('/projects', projectController);
-app.use('/versions', versionController);
-app.use('/iterations', iterationController);
-app.use('/stories', storyController);
-app.use('/tasks', taskController);
-app.use('/statisticses', statisticController);
+app.use('/', SiteController);
+app.use('/user', UserController);
+app.use('/projects', ProjectController);
+app.use('/versions', VersionController);
+app.use('/iterations', IterationController);
+app.use('/stories', StoryController);
+app.use('/tasks', TaskController);
+app.use('/task_statuses', TaskStatusController);
+app.use('/statisticses', StatisticController);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
