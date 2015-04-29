@@ -9,6 +9,7 @@ var CsvModel = require('../model/csv_model');
 var ProjectService = require('../service/project_service');
 var VersionService = require('../service/version_service');
 var IterationService = require('../service/iteration_service');
+var StoryService = require('../service/story_service');
 
 var CsvService = {
   root: '/data/cephfs/board',
@@ -138,13 +139,13 @@ var CsvService = {
     });
   },
   generateStory: function (stories, callback) {
-//    async.eachSeries(stories, function (story, cb) {
-//      StoryService.upload(story, function () {
-//        cb(null);
-//      });
-//    }, function () {
-//      callback(null);
-//    });
+    async.eachSeries(stories, function (story, cb) {
+      StoryService.upload(story, function () {
+        cb(null);
+      });
+    }, function () {
+      callback(null);
+    });
   },
   generateTask: function (taskContents) {
     

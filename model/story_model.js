@@ -9,9 +9,6 @@ var StoryModel = base.define('story', {
   leader: {
     type: Sequelize.INTEGER,
   },
-  iteration_id: {
-    type: Sequelize.INTEGER
-  },
   version_id: {
     type: Sequelize.INTEGER,
   },
