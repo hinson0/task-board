@@ -35,7 +35,7 @@ var Project = {
           })
           .spread(function (project, created) {
             if (created) {
-              console.log('项目 - [' + project.name + ']导入成功。');
+              console.log('项目 - [' + project.name + ']导入成功，ID=' + project.id + '。');
             } else {
               console.log('项目 - [' + project.name + ']已存在，忽略。');
             }

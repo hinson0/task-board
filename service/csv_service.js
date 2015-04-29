@@ -7,6 +7,8 @@ var async = require('async');
 
 var CsvModel = require('../model/csv_model');
 var ProjectService = require('../service/project_service');
+var VersionService = require('../service/version_service');
+var IterationService = require('../service/iteration_service');
 
 var CsvService = {
   root: '/data/cephfs/board',
@@ -77,70 +79,99 @@ var CsvService = {
   generateTasks: function (data) {
     var parsedContent = this.parseContent(data);
     var self = this;
-    async.series([ // 并行触发
+    async.series([
       function (callback) { // 项目
-        self.generateProject(parsedContent.project, function (err, project) {
-          callback(err, project);
+        var projects = self.filter(parsedContent.project, '项目');
+        self.generateProject(projects, function () {
+          callback(null);
         });
       },
       function (callback) { // 版本
-        self.generateVersion(parsedContent.version, function (err, project) {
-          callback(err);
+        var versions = self.filter(parsedContent.version, '版本');
+        self.generateVersion(versions, function () {
+          callback(null);
         });
-      }
+      },
+      function (callback) { // 迭代
+        var iterations = self.filter(parsedContent.iteration, '迭代');
+        self.generateIteration(iterations, function () {
+          callback(null);
+        });
+      },
+      function (callback) { // 故事
+        var stories = self.filter(parsedContent.story, '故事');
+        self.generateStory(stories, function () {
+          callback(null);
+        });
+      },
     ], function (err, result) {
       if (err) {
-        console.log(122222);
         console.log(err);
-        return;
       }
-      console.log(result);
     });
   },
-  generateProject: function (parsedProject, callback) { // 生成项目
-    // 没有项目信息
-    if (parsedProject.length === 0) {
-      console.log('项目 - 没有项目信息');
+  generateProject: function (projects, callback) { // 生成项目
+    async.eachSeries(projects, function (project, cb) {
+      ProjectService.upload(project, function () {
+        cb(null);
+      });
+    }, function () {
       callback(null);
-      return;
+    });
+  },
+  generateVersion: function (versions, callback) { // 生成版本
+    async.eachSeries(versions, function (version, cb) {
+      VersionService.upload(version, function () {
+        cb(null);
+      });
+    }, function () {
+      callback(null);
+    });
+  },
+  generateIteration: function (iterations, callback) { // 生成迭代
+    async.eachSeries(iterations, function (version, cb) {
+      IterationService.upload(version, function () {
+        cb(null);
+      });
+    }, function () {
+      callback(null);
+    });
+  },
+  generateStory: function (stories, callback) {
+//    async.eachSeries(stories, function (story, cb) {
+//      StoryService.upload(story, function () {
+//        cb(null);
+//      });
+//    }, function () {
+//      callback(null);
+//    });
+  },
+  generateTask: function (taskContents) {
+    
+  },
+  filter: function (content, type) {
+    // 没有信息
+    if (content.length === 0) {
+      console.log(type + ' - 没有信息');
+      return [];
     }
     
-    // 项目信息
     var self = this;
-    var slicedProjects = parsedProject.slice(2);
+    var sliced = content.slice(2);
     
-    // 过滤项目
-    var projects = [];
-    async.filter(slicedProjects, function (project, cb) {
-      if (self.isEmptyContent(project)) {
+    // 过滤
+    var contents = [];
+    async.filter(sliced, function (content, cb) {
+      if (self.isEmptyContent(content)) {
         cb(false);
       } else {
         cb(true);
       }
     }, function (result) {
-      projects = result;
+      contents = result;
     });
     
-    // 导入项目
-    async.eachSeries(projects, function (project, cb) {
-      ProjectService.upload(project, function (err, project) {
-        if (err) {
-          console.log(err);
-        }
-        cb(null);
-      });
-    }, function (err) {
-      if (err) {
-        console.log(err);
-      }
-      callback(null);
-    });
-  },
-  generateVersion: function (parsedVersion, callback) {
-    
-  },
-  generateTask: function (taskContents) {
-    
+    return contents;
   },
   parseContent: function (data) { // 有没有更好的parse方式?感觉现在的方式好low
     var decoded = iconv.decode(data, 'gbk');
