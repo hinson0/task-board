@@ -6,6 +6,11 @@ var Project = {
   upload: function (content, callback) {
     var props = content.split(',');
     var username = props[1];
+    
+    console.log('----');
+    console.log('项目 - 开始导入，信息为：');
+    console.log(props);
+    
     async.waterfall([
       function (cb) {  // 检查用户是否存在
         UserModel
@@ -15,24 +20,33 @@ var Project = {
             }
           })
           .then(function (user) {
-            cb(null, user);
+            if (user === null) {
+              cb('项目 - 用户[' + username + ']不存在，忽略');
+            } else {
+              cb(null, user);
+            }
           });
       },
       function (user, cb) { // 插入项目
         ProjectModel
           .findOrCreate({
-            where: {leader: user.id, name: props[0]}
+            where: {name: props[0]},
+            defaults: {leader: user.id}
           })
           .spread(function (project, created) {
-            cb(null, project);
+            if (created) {
+              console.log('项目 - [' + project.name + ']导入成功。');
+            } else {
+              console.log('项目 - [' + project.name + ']已存在，忽略。');
+            }
+            cb(null);
           });
       }
-    ], function (err, project) {
+    ], function (err) {
       if (err) {
-        callback(err);
-      } else {
-        callback(null, project);
+        console.log(err);
       }
+      callback(null);
     });
   }
 };

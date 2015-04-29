@@ -77,7 +77,7 @@ var CsvService = {
   generateTasks: function (data) {
     var parsedContent = this.parseContent(data);
     var self = this;
-    async.parallel([ // 并行触发
+    async.series([ // 并行触发
       function (callback) { // 项目
         self.generateProject(parsedContent.project, function (err, project) {
           callback(err, project);
@@ -90,29 +90,50 @@ var CsvService = {
       }
     ], function (err, result) {
       if (err) {
+        console.log(122222);
         console.log(err);
-        throw err;
+        return;
       }
       console.log(result);
     });
   },
   generateProject: function (parsedProject, callback) { // 生成项目
+    // 没有项目信息
     if (parsedProject.length === 0) {
-      console.log('没有项目');
+      console.log('项目 - 没有项目信息');
       callback(null);
+      return;
     }
+    
+    // 项目信息
     var self = this;
-    var projects = parsedProject.slice(2);
-    projects.forEach(function (content) {
-      if (!self.isEmptyContent(content)) {
-        ProjectService.upload(content, function (err, project) {
-          if (err) {
-            callback(err);
-          } else {
-            callback(null, project);
-          }
-        });
+    var slicedProjects = parsedProject.slice(2);
+    
+    // 过滤项目
+    var projects = [];
+    async.filter(slicedProjects, function (project, cb) {
+      if (self.isEmptyContent(project)) {
+        cb(false);
+      } else {
+        cb(true);
       }
+    }, function (result) {
+      projects = result;
+    });
+    
+    // 导入项目
+    async.eachSeries(projects, function (project, cb) {
+      ProjectService.upload(project, function (err, project) {
+        if (err) {
+          console.log(err);
+        }
+        cb(null);
+      });
+    }, function (err) {
+      if (err) {
+        console.log(err);
+      }
+      callback(null);
     });
   },
   generateVersion: function (parsedVersion, callback) {

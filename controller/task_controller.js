@@ -253,7 +253,12 @@ router.post('/:id/concerned', function (req, res) {
 // 上传
 router.post('/upload', function (req, res) {
   CsvService.upload(req.files.csv, function (err, csv) {
-    res.json({id: csv.id});
+    if (err) {
+      res.status(400);
+      res.json(err);
+    } else {
+      res.json({id: csv.id});
+    }
   });
 });
 
