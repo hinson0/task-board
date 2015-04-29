@@ -39,15 +39,18 @@ var VersionModel = base.define('version', {
   },
   relaxed: {
     type: Sequelize.STRING,
+    defaultValue: '',
   },
   status: {
     type: Sequelize.INTEGER,
+    defaultValue: 0,
     validate: {
       isIn: [[0, 1, 99]]
     }
   },
   create_time: {
     type: Sequelize.INTEGER,
+    defaultValue: 0,
   },
 }, {
   instanceMethods: {

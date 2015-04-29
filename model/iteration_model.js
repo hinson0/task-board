@@ -13,6 +13,7 @@ var IterationModel = base.define('iteration', {
   },
   start_time: {
     type: Sequelize.INTEGER,
+    defaultValue: 0,
   },
   end_time: {
     type: Sequelize.INTEGER,
