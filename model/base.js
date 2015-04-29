@@ -13,4 +13,6 @@ var base = new Sequelize(config.database, config.user, config.password, {
   }
 });
 
+console.log('链接成功');
+
 module.exports = base;

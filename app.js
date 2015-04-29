@@ -37,7 +37,6 @@ var projectController = require('./controller/project_controller');
 var versionController = require('./controller/version_controller');
 var iterationController = require('./controller/iteration_controller');
 var storyController = require('./controller/story_controller');
-var taskStatusController = require('./controller/task_status_controller');
 var taskController = require('./controller/task_controller');
 var statisticController = require('./controller/statistics_controller');
 
@@ -47,7 +46,6 @@ app.use('/projects', projectController);
 app.use('/versions', versionController);
 app.use('/iterations', iterationController);
 app.use('/stories', storyController);
-app.use('/task_statuses', taskStatusController);
 app.use('/tasks', taskController);
 app.use('/statisticses', statisticController);
 
