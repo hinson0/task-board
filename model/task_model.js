@@ -84,6 +84,8 @@ var TaskFollowModel = require('./task_follow_model');
 var TaskHistoryModel = require('./task_history_model');
 var IterationModel = require('./iteration_model');
 var StoryModel = require('./story_model');
+var ProjectModel = require('./project_model');
+var VersionModel = require('./version_model');
 
 TaskModel.belongsTo(UserModel, {foreignKey: 'user_id'});
 TaskModel.belongsTo(TaskStatusModel, {foreignKey: 'status_id'});
@@ -91,5 +93,7 @@ TaskModel.hasMany(TaskFollowModel, {foreignKey: 'task_id'});
 TaskModel.hasMany(TaskHistoryModel, {foreignKey: 'task_id'});
 TaskModel.belongsTo(IterationModel, {foreignKey: 'iteration_id'});
 TaskModel.belongsTo(StoryModel, {foreignKey: 'story_id'});
+TaskModel.belongsTo(ProjectModel, {foreignKey: 'project_id'});
+TaskModel.belongsTo(VersionModel, {foreignKey: 'version_id'});
 
 module.exports = TaskModel;
