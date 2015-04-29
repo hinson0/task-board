@@ -13,11 +13,26 @@ var StoryModel = require('../model/story_model');
 /* GET home page. */
 router.get('/', function (req, res) {
   
+  if (1) {
+    var relaxed = '20150102,20150103';
+    var startDate = moment(1420070400, 'X');
+    var endDate = moment(1422921600, 'X');
+    var dates = [];
+    while (endDate.isAfter(startDate)) {
+      var format = startDate.format('YYYYMMDD');
+      if (relaxed.indexOf(format) === -1) {
+        dates.push(format);
+      }
+      startDate.add(1, 'days');
+    }
+    dates.push(endDate.format('YYYYMMDD'));
+    console.log(dates);
+  }
   
   /**
    * 
    */
-  if (1) {
+  if (0) {
     var newDates = {};
     
     

@@ -63,12 +63,14 @@ var IterationModel = base.define('iteration', {
       }
     },
     getDates: function () {
-      var startDate = moment(this.start_time, 'X').format('YYYYMMDD');
-      var endDate = moment(this.end_time, 'X').format('YYYYMMDD');
+      var startDate = moment(this.start_time, 'X');
+      var endDate = moment(this.end_time, 'X');
       var dates = [];
-      for (var i = startDate; i <= endDate; i++) {
-        dates.push(i);
+      while (endDate.isAfter(startDate)) {
+        dates.push(startDate.format('YYYYMMDD'));
+        startDate.add(1, 'days');
       }
+      dates.push(endDate.format('YYYYMMDD'));
       return dates;
     }
   }
