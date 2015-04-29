@@ -10,6 +10,7 @@ var ProjectService = require('../service/project_service');
 var VersionService = require('../service/version_service');
 var IterationService = require('../service/iteration_service');
 var StoryService = require('../service/story_service');
+var TaskService = require('../service/task_service');
 
 var CsvService = {
   root: '/data/cephfs/board',
@@ -20,7 +21,7 @@ var CsvService = {
         if (err) {
           throw err;
         }
-        self.generateTasks(data);
+        self.generateAll(data);
         self.mvFile(csv, data);
       });
       callback(null, csvModel);
@@ -77,7 +78,7 @@ var CsvService = {
       fs.writeFile(filename, data);
     });
   },
-  generateTasks: function (data) {
+  generateAll: function (data) {
     var parsedContent = this.parseContent(data);
     var self = this;
     async.series([
@@ -105,6 +106,12 @@ var CsvService = {
           callback(null);
         });
       },
+      function (callback) { // 任务
+        var tasks = self.filter(parsedContent.task, '任务');
+        self.generateTasks(tasks, function () {
+          callback(null);
+        });
+      }
     ], function (err, result) {
       if (err) {
         console.log(err);
@@ -147,8 +154,14 @@ var CsvService = {
       callback(null);
     });
   },
-  generateTask: function (taskContents) {
-    
+  generateTasks: function (tasks, callback) {
+    async.eachSeries(tasks, function (task, cb) {
+      TaskService.upload(task, function () {
+        cb(null);
+      });
+    }, function () {
+      callback(null);
+    });
   },
   filter: function (content, type) {
     // 没有信息

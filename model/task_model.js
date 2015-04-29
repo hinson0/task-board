@@ -48,7 +48,8 @@ var TaskModel = base.define('task', {
     type: Sequelize.INTEGER
   },
   create_time: {
-    type: Sequelize.INTEGER
+    type: Sequelize.INTEGER,
+    defaultValue: moment().unix()
   }
 }, {
   instanceMethods: {
