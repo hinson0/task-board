@@ -46,7 +46,29 @@ router.get('/list', function (req, res, next) {
 });
 
 // 详情
+router.get('/show/:id', checkUserId);
 router.get('/show/:id', function (req, res, next) {
+  res.json(req.user);
+});
+
+// 修改
+router.put('/modi/:id', checkUserId);
+router.put('/modi/:id', function (req, res) {
+  req.user
+    .update(req.body)
+    .then(function (user) {
+      res.json(user);
+    });
+});
+
+// 用户删除
+router.delete('/del/:id', checkUserId);
+router.delete('/del/:id', function (req, res) {
+  req.user.destroy();
+  res.json({msg: '操作成功'});
+});
+
+function checkUserId(req, res, next) {
   UserModel
     .find(req.params.id)
     .then(function (user) {
@@ -54,10 +76,11 @@ router.get('/show/:id', function (req, res, next) {
         res.status(400);
         res.json({msg: '用户不存在'});
       } else {
-        res.json(user);
+        req.user = user;
+        next();
       }
     });
-});
+}
 
 module.exports = router;
 
