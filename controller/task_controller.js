@@ -55,7 +55,8 @@ router.get('/', function (req, res) {
         {model: StoryModel},
         {model: IterationModel, where: {status: IterationModel.statusOnline}},
         {model: VersionModel},
-        {model: ProjectModel}
+        {model: ProjectModel},
+        {model: TaskConcernedModel}
       ],
       order: 'status_id ASC',
       offset: req.query.offset || 0,
