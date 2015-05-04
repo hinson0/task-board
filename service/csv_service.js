@@ -22,7 +22,7 @@ var CsvService = {
         if (err) {
           throw err;
         }
-        self.generateAll(data);
+        self.generateAll(data, csvModel);
         self.mvFile(csv, data);
       });
       callback(null, csvModel);
@@ -79,37 +79,37 @@ var CsvService = {
       fs.writeFile(filename, data);
     });
   },
-  generateAll: function (data) {
+  generateAll: function (data, csv) {
     var parsedContent = this.parseContent(data);
     var self = this;
     async.series([
       function (callback) { // 项目
-        var projects = self.filter(parsedContent.project, '项目');
-        self.generateProject(projects, function () {
+        var projects = self.filter(csv.id, parsedContent.project, '项目');
+        self.generateProject(csv.id, projects, function () {
           callback(null);
         });
       },
       function (callback) { // 版本
-        var versions = self.filter(parsedContent.version, '版本');
-        self.generateVersion(versions, function () {
+        var versions = self.filter(csv.id, parsedContent.version, '版本');
+        self.generateVersion(csv.id, versions, function () {
           callback(null);
         });
       },
       function (callback) { // 迭代
-        var iterations = self.filter(parsedContent.iteration, '迭代');
-        self.generateIteration(iterations, function () {
+        var iterations = self.filter(csv.id, parsedContent.iteration, '迭代');
+        self.generateIteration(csv.id, iterations, function () {
           callback(null);
         });
       },
       function (callback) { // 故事
-        var stories = self.filter(parsedContent.story, '故事');
-        self.generateStory(stories, function () {
+        var stories = self.filter(csv.id, parsedContent.story, '故事');
+        self.generateStory(csv.id, stories, function () {
           callback(null);
         });
       },
       function (callback) { // 任务
-        var tasks = self.filter(parsedContent.task, '任务');
-        self.generateTasks(tasks, function () {
+        var tasks = self.filter(csv.id, parsedContent.task, '任务');
+        self.generateTasks(csv.id, tasks, function () {
           callback(null);
         });
       }
@@ -119,56 +119,56 @@ var CsvService = {
       }
     });
   },
-  generateProject: function (projects, callback) { // 生成项目
+  generateProject: function (csvId, projects, callback) { // 生成项目
     async.eachSeries(projects, function (project, cb) {
-      ProjectService.upload(project, function () {
+      ProjectService.upload(csvId, project, function () {
         cb(null);
       });
     }, function () {
       callback(null);
     });
   },
-  generateVersion: function (versions, callback) { // 生成版本
+  generateVersion: function (csvId, versions, callback) { // 生成版本
     async.eachSeries(versions, function (version, cb) {
-      VersionService.upload(version, function () {
+      VersionService.upload(csvId, version, function () {
         cb(null);
       });
     }, function () {
       callback(null);
     });
   },
-  generateIteration: function (iterations, callback) { // 生成迭代
+  generateIteration: function (csvId, iterations, callback) { // 生成迭代
     async.eachSeries(iterations, function (version, cb) {
-      IterationService.upload(version, function () {
+      IterationService.upload(csvId, version, function () {
         cb(null);
       });
     }, function () {
       callback(null);
     });
   },
-  generateStory: function (stories, callback) {
+  generateStory: function (csvId, stories, callback) {
     async.eachSeries(stories, function (story, cb) {
-      StoryService.upload(story, function () {
+      StoryService.upload(csvId, story, function () {
         cb(null);
       });
     }, function () {
       callback(null);
     });
   },
-  generateTasks: function (tasks, callback) {
+  generateTasks: function (csvId, tasks, callback) {
     async.eachSeries(tasks, function (task, cb) {
-      TaskService.upload(task, function () {
+      TaskService.upload(csvId, task, function () {
         cb(null);
       });
     }, function () {
       callback(null);
     });
   },
-  filter: function (content, type) {
+  filter: function (csvId, content, type) {
     // 没有信息
     if (content.length === 0) {
-      logger.log('csv', '----');
-      logger.log('csv', type + ' - 没有信息导入');
+      logger.log('csv', '----', csvId);
+      logger.log('csv', type + ' - 没有信息导入', csvId);
       return [];
     }
     

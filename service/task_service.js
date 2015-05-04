@@ -99,12 +99,12 @@ var TaskService = {
     
     async.waterfall([findTaskUser, findTaskConcerned, findUsers]);
   },
-  upload: function (info, callback) {
+  upload: function (csvId, info, callback) {
     var props = info.split(',');
     
-    logger.log('csv', '----');
-    logger.log('csv', '任务 - 开始导入，信息为：');
-    logger.log('csv', props.toString());
+    logger.log('csv', '----', csvId);
+    logger.log('csv', '任务 - 开始导入，信息为：', csvId);
+    logger.log('csv', props.toString(), csvId);
     
     async.waterfall([
       // 故事是否存在
@@ -165,7 +165,7 @@ var TaskService = {
             create_time: 1
           })
           .then(function (task) {
-            logger.log('csv', '任务 - 故事[' + task.desc + ']导入成功，ID=' + task.id);
+            logger.log('csv', '任务 - 故事[' + task.desc + ']导入成功，ID=' + task.id, csvId);
             callback(null);
           })
           .catch(function (err) {
@@ -174,7 +174,7 @@ var TaskService = {
       }
     ], function (err, result) {
       if (err) {
-        logger.log('csv', err);
+        logger.log('csv', err, csvId);
       }
       callback(err, result);
     });

@@ -1,15 +1,17 @@
+var async = require('async');
+var logger = require('../library/logger');
+
 var ProjectModel = require('../model/project_model');
 var UserModel = require('../model/user_model');
-var async = require('async');
 
 var Project = {
-  upload: function (content, callback) {
+  upload: function (csvId, content, callback) {
     var props = content.split(',');
     var username = props[1];
     
-    console.log('----');
-    console.log('项目 - 开始导入，信息为：');
-    console.log(props);
+    logger.log('csv', '----', csvId);
+    logger.log('csv', '项目 - 开始导入，信息为：', csvId);
+    logger.log('csv', props.toString(), csvId);
     
     async.waterfall([
       function (cb) {  // 检查用户是否存在
@@ -35,16 +37,16 @@ var Project = {
           })
           .spread(function (project, created) {
             if (created) {
-              console.log('项目 - [' + project.name + ']导入成功，ID=' + project.id + '。');
+              logger.log('csv', '项目 - [' + project.name + ']导入成功，ID=' + project.id + '。', csvId);
             } else {
-              console.log('项目 - [' + project.name + ']已存在，忽略。');
+              logger.log('csv', '项目 - [' + project.name + ']已存在，忽略。', csvId);
             }
             cb(null);
           });
       }
     ], function (err) {
       if (err) {
-        console.log(err);
+        logger.log('csv', err, csvId);
       }
       callback(null);
     });

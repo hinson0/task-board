@@ -1,16 +1,17 @@
 var async = require('async');
 var moment = require('moment');
+var logger = require('../library/logger');
 
 var VersionModel = require('../model/version_model');
 var ProjectModel = require('../model/project_model');
 
 var VersionService = {
-  upload: function (info, callback) {
+  upload: function (csvId, info, callback) {
     var props = info.split(',');
     
-    console.log('----');
-    console.log('版本 - 开始导入，信息为：');
-    console.log(props);
+    logger.log('csv', '----', csvId);
+    logger.log('csv', '版本 - 开始导入，信息为：', csvId);
+    logger.log('csv', props.toString(), csvId);
     
     async.waterfall([
       function (callback) { // 检查版本
@@ -40,16 +41,16 @@ var VersionService = {
           })
           .spread(function (version, created) {
             if (created) {
-              console.log('版本 - [' + version.name + ']导入成功，ID=' + version.id);
+              logger.log('csv', '版本 - [' + version.name + ']导入成功，ID=' + version.id, csvId);
             } else {
-              console.log('版本 - [' + version.name + ']已存在，ID=' + version.id +'，忽略');
+              logger.log('csv', '版本 - [' + version.name + ']已存在，ID=' + version.id +'，忽略', csvId);
             }
             callback(null);
           });
       }
     ], function (err, result) {
       if (err) {
-        console.log(err);
+        logger.log('csv', err, csvId);
       }
       callback(err, result);
     });

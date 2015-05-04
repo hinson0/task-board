@@ -1,5 +1,6 @@
 var async = require('async');
 var moment = require('moment');
+var logger = require('../library/logger');
 
 var UserModel = require('../model/user_model');
 var ProjectModel = require('../model/project_model');
@@ -7,7 +8,7 @@ var VersionModel = require('../model/version_model');
 var StoryModel = require('../model/story_model');
 
 var StoryService = {
-  upload: function (info, callback) {
+  upload: function (csvId, info, callback) {
     /**
      * info数据格式
      * 名称,负责人,时间,所属项目,所属版本
@@ -16,9 +17,9 @@ var StoryService = {
     
     var props = info.split(',');
     
-    console.log('----');
-    console.log('故事 - 开始导入，信息为：');
-    console.log(props);
+    logger.log('csv', '----', csvId);
+    logger.log('csv', '故事 - 开始导入，信息为：', csvId);
+    logger.log('csv', props.toString(), csvId);
     
     async.waterfall([
       // 判断用户是否存在
@@ -77,16 +78,16 @@ var StoryService = {
           })
           .spread(function (story, created) {
             if (created) {
-              console.log('故事 - [' + story.title + ']导入成功，ID=' + story.id);
+              logger.log('故事 - [' + story.title + ']导入成功，ID=' + story.id, csvId);
             } else {
-              console.log('故事 - [' + story.title + ']已存在，ID=' + story.id +'，忽略');
+              logger.log('故事 - [' + story.title + ']已存在，ID=' + story.id +'，忽略', csvId);
             }
             callback(null);
           });
       }
     ], function (err, result) {
       if (err) {
-        console.log(err);
+        logger.log('csv', err, csvId);
       }
       callback(err, result);
     });

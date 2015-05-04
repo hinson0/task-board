@@ -15,7 +15,7 @@ var Logger = require('../library/logger');
 /* GET home page. */
 router.get('/', function (req, res) {
   
-  if (0) {
+  if (1) {
     Logger.log('csv', 'dddddd');
   }
   
