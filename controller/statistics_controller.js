@@ -21,6 +21,15 @@ router.get('/hours', function (req, res) { // 获取统计工时
   if (req.query.iteration_id) { // 支持迭代id
     where.iteration_id = req.query.iteration_id;
   }
+  if (req.query.start_time || req.query.end_time) {
+    where.end_time = {};
+    if (req.query.start_time) {
+      where.end_time.$gte = req.query.start_time;
+    }
+    if (req.query.end_time) {
+      where.end_time.$lte = req.query.end_time;
+    }
+  }
   TaskModel
     .findAll({
       where: where,
