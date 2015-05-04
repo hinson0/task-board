@@ -25,7 +25,9 @@ router.get('/hours', function (req, res) { // 获取统计工时
     .findAll({
       where: where,
       include: [
-        {model: UserModel}
+        {model: UserModel},
+        {model: VersionModel, where: {status: VersionModel.statusOnline}},
+        {model: IterationModel, where: {status: IterationModel.statusOnline}}
       ],
       order: 'user_id ASC'
     })
