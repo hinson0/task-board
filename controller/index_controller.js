@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var async = require('async');
 var moment = require('moment');
+var fs = require('fs');
 
 var Sequelize = require('sequelize');
 var PostModel = require('../model/post_model');
@@ -15,10 +16,11 @@ var Logger = require('../library/logger');
 /* GET home page. */
 router.get('/', function (req, res) {
   
-  res.sendFile('/data/cephfs/log/board/csv-80.log');
-  
-  if (0) {
-    Logger.log('csv', 'dddddd');
+  if (1) {
+    fs.stat('/data/cephfs/log/board/csv-80.log', function (err, info) {
+      res.json(info);
+    });
+    
   }
   
   if (0) {

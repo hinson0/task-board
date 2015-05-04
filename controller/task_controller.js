@@ -282,7 +282,9 @@ router.get('/upload/show/:id', function (req, res, next) {
     });
 });
 router.get('/upload/show/:id', function (req, res) {
-  res.sendFile(logger.filename('csv', req.csv.id));
+  setTimeout(function () {
+    res.sendFile(logger.filename('csv', req.csv.id));
+  }, 5000);
 });
 
 function checkUserId(req, res, next) {
