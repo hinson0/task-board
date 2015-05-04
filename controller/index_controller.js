@@ -15,7 +15,9 @@ var Logger = require('../library/logger');
 /* GET home page. */
 router.get('/', function (req, res) {
   
-  if (1) {
+  res.sendFile('/data/cephfs/log/board/csv-80.log');
+  
+  if (0) {
     Logger.log('csv', 'dddddd');
   }
   

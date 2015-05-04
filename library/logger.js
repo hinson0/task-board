@@ -10,6 +10,12 @@ var path = require('path');
 
 var Logger = {
   root: '/data/cephfs/log/board',
+  filename: function (filename, symbol) {
+    if (symbol === undefined) {
+      symbol = moment().format('YYYY-MM-DD');
+    }
+    return sprintf('%s/%s-%s.log', this.root, filename, symbol);
+  },
   log: function (filename, data, symbol, callback) {
     if (symbol === undefined) {
       symbol = moment().format('YYYY-MM-DD');
@@ -17,6 +23,17 @@ var Logger = {
     var _filename = sprintf('%s/%s-%s.log', this.root, filename, symbol);
     fs.appendFile(_filename, data + "\n", callback);
   },
+//  read: function (filename, symbol, callback) {
+//    if (symbol === undefined) {
+//      symbol = moment().format('YYYY-MM-DD');
+//    }
+//    var _filename = sprintf('%s/%s-%s.log', this.root, filename, symbol);
+//    fs.readFile(_filename, function (err, data) {
+//      if (err) throw err;
+//      callback(err, data);
+//    });
+//  },
+  
   init: function () {
     this._mkdirs(this.root, 0777, function () {
       console.log('success');

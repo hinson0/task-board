@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var moment = require('moment');
 var async = require('async');
+var logger = require('../library/logger');
 
 var IterationModel = require('../model/iteration_model');
 var TaskModel = require('../model/task_model');
@@ -13,6 +14,7 @@ var TaskHistoryModel = require('../model/task_history_model');
 var TaskConcernedModel = require('../model/task_concerned_model');
 var StoryModel = require('../model/story_model');
 var ProjectModel = require('../model/project_model');
+var CsvModel = require('../model/csv_model');
 
 var TaskService = require('../service/task_service');
 var RouterService = require('../service/router_service');
@@ -263,6 +265,24 @@ router.post('/upload', function (req, res) {
       res.json({id: csv.id});
     }
   });
+});
+
+// 上传结果
+router.get('/upload/show/:id', function (req, res, next) {
+  CsvModel
+    .find(req.params.id)
+    .then(function (csv) {
+      if (csv === null) {
+        res.status(400);
+        res.json({msg: '不存在的导入'});
+      } else {
+        req.csv = csv;
+        next();
+      }
+    });
+});
+router.get('/upload/show/:id', function (req, res) {
+  res.sendFile(logger.filename('csv', req.csv.id));
 });
 
 function checkUserId(req, res, next) {

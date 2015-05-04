@@ -28,6 +28,7 @@ var CsvService = {
       callback(null, csvModel);
     });
   },
+  
   getDir: function (name) {
     var key = name.split('.')[0];
     var part1 = key.substr(0, 2);
@@ -46,6 +47,18 @@ var CsvService = {
       }
     });
   },
+  mvFile: function (csv, data) {
+    var dir = this.getDir(csv.name);
+    this.mkdir(dir, 0777, function (err) {
+      if (err) {
+        console.log(err);
+        throw err;
+      }
+      var filename = dir + '/' + csv.name;
+      fs.writeFile(filename, data);
+    });
+  },
+  
   insertDb: function (csv, callback) {
     // 新建记录
     var md5 = crypto.createHash('md5');
@@ -67,17 +80,6 @@ var CsvService = {
         console.log(err.errors[0].message);
         throw err;
       });
-  },
-  mvFile: function (csv, data) {
-    var dir = this.getDir(csv.name);
-    this.mkdir(dir, 0777, function (err) {
-      if (err) {
-        console.log(err);
-        throw err;
-      }
-      var filename = dir + '/' + csv.name;
-      fs.writeFile(filename, data);
-    });
   },
   generateAll: function (data, csv) {
     var parsedContent = this.parseContent(data);
@@ -164,6 +166,7 @@ var CsvService = {
       callback(null);
     });
   },
+  
   filter: function (csvId, content, type) {
     // 没有信息
     if (content.length === 0) {
@@ -260,6 +263,7 @@ var CsvService = {
     });
     return Parsedcontent;
   },
+  
   isProjectExisted: function (content) {
     return content.indexOf('[项目]') !== -1;
   },
