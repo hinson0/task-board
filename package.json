@@ -14,7 +14,8 @@
     "debug": "~2.1.1",
     "ejs": "~1.0.0",
     "stylus": "0.42.3",
-    "multer": "~0.1.8"
+    "multer": "~0.1.8",
+    "iconv-lite": "~0.4.8"
   },
   "keywords": [],
   "bugs": {

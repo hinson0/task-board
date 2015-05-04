@@ -1,4 +1,5 @@
 var async = require('async');
+var logger = require('../library/logger');
 
 var TaskStatusModel = require('../model/task_status_model');
 var TaskFollowModel = require('../model/task_follow_model');
@@ -101,9 +102,9 @@ var TaskService = {
   upload: function (info, callback) {
     var props = info.split(',');
     
-    console.log('----');
-    console.log('任务 - 开始导入，信息为：');
-    console.log(props);
+    logger.log('csv', '----');
+    logger.log('csv', '任务 - 开始导入，信息为：');
+    logger.log('csv', props.toString());
     
     async.waterfall([
       // 故事是否存在
@@ -164,7 +165,7 @@ var TaskService = {
             create_time: 1
           })
           .then(function (task) {
-            console.log('任务 - 故事[' + task.desc + ']导入成功，ID=' + task.id);
+            logger.log('csv', '任务 - 故事[' + task.desc + ']导入成功，ID=' + task.id);
             callback(null);
           })
           .catch(function (err) {
@@ -173,12 +174,12 @@ var TaskService = {
       }
     ], function (err, result) {
       if (err) {
-        console.log(err);
+        logger.log('csv', err);
       }
       callback(err, result);
     });
     
-  },
+  }
 };
 
 module.exports = TaskService;

@@ -4,6 +4,7 @@ var fs = require('fs');
 var path = require('path');
 var iconv = require('iconv-lite');
 var async = require('async');
+var logger = require('../library/logger');
 
 var CsvModel = require('../model/csv_model');
 var ProjectService = require('../service/project_service');
@@ -166,7 +167,8 @@ var CsvService = {
   filter: function (content, type) {
     // 没有信息
     if (content.length === 0) {
-      console.log(type + ' - 没有信息');
+      logger.log('csv', '----');
+      logger.log('csv', type + ' - 没有信息导入');
       return [];
     }
     

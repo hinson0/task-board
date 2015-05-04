@@ -10,10 +10,16 @@ var VersionModel = require('../model/version_model');
 var ProjectModel = require('../model/project_model');
 var StoryModel = require('../model/story_model');
 
+var Logger = require('../library/logger');
+
 /* GET home page. */
 router.get('/', function (req, res) {
   
-  if (1) {
+  if (0) {
+    Logger.log('csv', 'dddddd');
+  }
+  
+  if (0) {
     var relaxed = '20150102,20150103';
     var startDate = moment(1420070400, 'X');
     var endDate = moment(1422921600, 'X');
