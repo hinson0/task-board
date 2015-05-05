@@ -57,13 +57,15 @@ router.get('/story', function (req, res, next) {
 router.get('/story', function (req, res) {
   async.waterfall([
     function (callback) { // 获取story
-      var where = {};
+      var where = {
+        status: StoryModel.statusOnline
+      };
       if (req.query.version_id) { // 支持版本id
         where.version_id = req.version.id;
       }
       StoryModel
         .findAll({
-          where: {version_id: req.version.id}
+          where: where
         })
         .then(function (stories) {
           if (stories === null) {
@@ -77,14 +79,15 @@ router.get('/story', function (req, res) {
       async.map(stories, function (story, cb) {
         var where = {
           version_id: story.version_id,
-          story_id: story.id
+          story_id: story.id,
+          status: TaskModel.statusOnline
         };
         if (req.query.iteration_id) {
           where.iteration_id = req.query.iteration_id;
         }
         TaskModel
           .findAll({
-            where: where,
+            where: where
           })
           .then(function (tasks) {
             story.setDataValue('tasks', tasks);
