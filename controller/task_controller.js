@@ -90,7 +90,8 @@ router.post('/', function (req, res, next) { // 添加任务
       priority: req.body.priority,
       estimated_time: req.body.estimated_time,
       status_id: req.body.task_status_id,
-      create_time: moment().unix()
+      create_time: moment().unix(),
+      remark: req.body.remark
     })
     .save()
     .then(function (task) {
@@ -135,6 +136,7 @@ router.put('/:id', function (req, res, next) {
       is_challenging: req.body.is_challenging,
       priority: req.body.priority,
       estimated_time: req.body.estimated_time,
+      remark: req.body.remark
     })
     .then(function (task) {
       next();
