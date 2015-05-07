@@ -42,7 +42,8 @@ var TaskModel = base.define('task', {
     type: Sequelize.INTEGER,
   },
   remark: {
-    type: Sequelize.STRING
+    type: Sequelize.STRING,
+    defaultValue: ''
   },
   start_time: {
     type: Sequelize.INTEGER,

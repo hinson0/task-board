@@ -125,7 +125,7 @@ router.put('/:id', checkStoryId);
 router.put('/:id', checkPrevTaskIds);
 router.put('/:id', function (req, res, next) {
   req.task
-    .updateAttributes({
+    .update({
       project_id: req.version.project_id,
       version_id: req.version.id,
       iteration_id: req.iteration.id,
@@ -191,7 +191,7 @@ router.put('/:id', function (req, res) { // 删除老的关联
 router.delete('/:id', checkTaskId);
 router.delete('/:id', function (req, res) {
   req.task
-    .updateAttributes({
+    .update({
       status: TaskModel.statusOffline
     })
     .then(function () {
@@ -256,6 +256,19 @@ router.post('/:id/concerned', function (req, res) {
     })
     .catch(function (err) {
       RouterService.json(err, res);
+    });
+});
+
+// 取消关注
+router.post('/:id/unconcerned', checkTaskId);
+router.post('/:id/unconcerned', checkUserId);
+router.post('/:id/unconcerned', function (req, res) {
+  TaskConcernedModel
+    .find({
+      where: {task_id: req.task.id, user_id: req.user.id}
+    })
+    .then(function () {
+      
     });
 });
 
