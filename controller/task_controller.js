@@ -267,8 +267,14 @@ router.post('/:id/unconcerned', function (req, res) {
     .find({
       where: {task_id: req.task.id, user_id: req.user.id}
     })
-    .then(function () {
-      
+    .then(function (taskConcerned) {
+      if (taskConcerned) {
+        taskConcerned
+          .destroy()
+          .then(function () {
+            res.json({msg: '取消成功'});
+          });
+      }
     });
 });
 
@@ -312,6 +318,7 @@ function checkUserId(req, res, next) {
         res.status(404);
         res.json({msg: '用户不存在'});
       } else {
+        req.user = user;
         next();
       }
     });
