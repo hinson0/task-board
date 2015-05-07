@@ -4,7 +4,7 @@ var moment = require('moment');
 var base = require('./base');
 
 // 类
-var ProjectModel = base.define('project', {
+var ProjectModel = module.exports = base.define('project', {
   leader: {
     type: Sequelize.INTEGER
   },
@@ -20,7 +20,10 @@ var ProjectModel = base.define('project', {
   }
 });
 
+// 状态
 ProjectModel.statusOnline = 0;
 ProjectModel.statusDeleted = 99;
 
-module.exports = ProjectModel;
+// 关系
+var VersionModel = require('./version_model');
+ProjectModel.hasMany(VersionModel, {foreignKey: 'project_id'});

@@ -4,7 +4,7 @@ var moment = require('moment');
 var base = require('./base');
 
 // 类
-var IterationModel = base.define('iteration', {
+var IterationModel = module.exports = base.define('iteration', {
   version_id: {
     type: Sequelize.INTEGER,
   },
@@ -84,8 +84,4 @@ IterationModel.statusDeleted = 99; // 删除
 
 // 关系
 var VersionModel = require('./version_model');
-
 IterationModel.belongsTo(VersionModel, { foreignKey: 'version_id' });
-
-// 导出
-module.exports = IterationModel;

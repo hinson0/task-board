@@ -2,19 +2,44 @@ var express = require('express');
 var router = express.Router();
 var moment = require('moment');
 
-var ProjectModel2 = require('../model/project_model');
-var UserModel2 = require('../model/user_model');
+var ProjectModel = require('../model/project_model');
+var UserModel = require('../model/user_model');
+var VersionModel = require('../model/version_model');
+var IterationModel = require('../model/iteration_model');
+
 var RouterService = require('../service/router_service');
 
 // 列表
 router.get('/', function (req, res) {
-  ProjectModel2
+  ProjectModel
     .findAndCountAll({
       where: {
-        status: ProjectModel2.statusOnline
+        status: ProjectModel.statusOnline
       },
       offset: req.query.offset || 0,
       limit: req.query.size || 10
+    })
+    .then(function (projects) {
+      res.json(projects);
+    });
+});
+
+// 树形
+router.get('/list', function (req, res) {
+  ProjectModel
+    .findAll({
+      offset: req.query.offset || 0,
+      limit: req.query.limit || 0,
+      include: [
+        {
+          model: VersionModel, 
+          where: {status: VersionModel.statusOnline}, 
+          include: [
+            {model: IterationModel, where: {status: IterationModel.statusOnline}}
+          ]
+        }
+      ],
+      order: 'id DESC'
     })
     .then(function (projects) {
       res.json(projects);
@@ -25,7 +50,7 @@ router.get('/', function (req, res) {
 router.post('/', checkLeader);
 router.post('/', checkName);
 router.post('/', function (req, res) {
-  ProjectModel2
+  ProjectModel
     .create(req.body)
     .then(function (project) {
       res.json({id: project.id});
@@ -36,7 +61,7 @@ router.post('/', function (req, res) {
 });
 
 router.use('/:id', function (req, res, next) {
-  ProjectModel2
+  ProjectModel
     .find(req.params.id)
     .then(function (project) {
       if (project === null) {
@@ -59,7 +84,7 @@ router.put('/:id', function (req, res, next) {
   }
 });
 router.put('/:id', function (req, res) {
-  ProjectModel2
+  ProjectModel
     .update(req.body)
     .then(function (project) {
       res.json({id: project.id});
@@ -73,7 +98,7 @@ router.put('/:id', function (req, res) {
 router.delete('/:id', function (req, res) {
   req.project
     .update({
-      status: ProjectModel2.statusDeleted
+      status: ProjectModel.statusDeleted
     })
     .then(function () {
       res.json({msg: '删除成功'});
@@ -84,7 +109,7 @@ router.delete('/:id', function (req, res) {
 });
 
 function checkName(req, res, next) { // 校验项目名称是否存在
-  ProjectModel2
+  ProjectModel
     .find({
       where: {name: req.body.name}
     })
@@ -98,7 +123,7 @@ function checkName(req, res, next) { // 校验项目名称是否存在
     });
 }
 function checkLeader(req, res, next) { // 校验负责人
-  UserModel2
+  UserModel
     .find(req.body.leader)
     .then(function (user) {
       if (user === null) {
