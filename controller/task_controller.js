@@ -95,8 +95,7 @@ router.post('/', function (req, res, next) { // 添加任务
     })
     .save()
     .then(function (task) {
-      res.json({id: task.id});
-      req.taskId = task.id;
+      req.task = task;
       next();
     })
     .catch(function (err) {
@@ -104,15 +103,19 @@ router.post('/', function (req, res, next) { // 添加任务
     });
 
 });
-router.post('/', function (req) { // 前置任务添加
-  req.prevTaskIds.forEach(function (prevTaskId) {
+router.post('/', function (req, res) { // 前置任务添加
+  async.each(req.prevTaskIds, function (prevTaskId, callback) {
     TaskFollowModel
-      .build({
-        task_id: req.taskId,
+      .create({
+        task_id: req.task.id,
         prev_task_id: prevTaskId,
         create_time: moment().unix()
       })
-      .save();
+      .then(function () {
+        callback();
+      });
+  }, function (err) {
+    res.json({id: req.task.id});
   });
 });
 
