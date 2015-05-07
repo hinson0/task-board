@@ -3,6 +3,7 @@ var router = express.Router();
 var async = require('async');
 var moment = require('moment');
 var fs = require('fs');
+var _ = require('underscore');
 
 var Sequelize = require('sequelize');
 var PostModel = require('../model/post_model');
@@ -17,6 +18,19 @@ var Logger = require('../library/logger');
 router.get('/', function (req, res) {
   
   if (1) {
+    var arr = [ 44, 53, 53, 53 ];
+    var arr1 = [];
+    arr.forEach(function (item) {
+      console.log(item in arr1);
+      if (_.indexOf(arr1, item) !== -1) {
+        return;
+      }
+      arr1.push(item);
+    });
+    res.json(arr1);
+  }
+  
+  if (0) {
     fs.stat('/data/cephfs/log/board/csv-80.log', function (err, info) {
       res.json(info);
     });

@@ -1,4 +1,5 @@
 var async = require('async');
+var _ = require('underscore');
 var logger = require('../library/logger');
 
 var TaskStatusModel = require('../model/task_status_model');
@@ -99,6 +100,89 @@ var TaskService = {
     
     async.waterfall([findTaskUser, findTaskConcerned, findUsers]);
   },
+  sendLeaderMsg: function (task) { // 发送负责人
+    async.waterfall([
+      // 故事
+      function (callback) {
+        StoryModel
+          .find(task.story_id)
+          .then(function (story) {
+            callback(null, story);
+          });
+      },
+      // 用户
+      function (story, callback) {
+        UserModel
+          .find(story.leader)
+          .then(function (user) {
+            callback(null, user);
+          });
+      },
+      // 推送
+      function (user, callback) {
+        var msg91u = new Msg91U(user.worker_num);
+        var msg = '任务[' + task.desc + ']' + user.name + '已完成。作为故事负责人，你会收到此消息';
+        msg91u.send(msg);
+        callback(null);
+      }
+    ], function (err, result) {
+      // do nothing
+    });
+  },
+  sendAssociatedMsg: function (task) {
+    async.waterfall([
+      // 找到相关任务
+      function (callback) {
+        TaskModel
+          .findAll({
+            where: {
+              project_id: task.project_id,
+              version_id: task.version_id,
+              story_id: task.story_id
+            }
+          })
+          .then(function (tasks) {
+            if (tasks) {
+              callback(null, tasks);
+            } else {
+              callback('empty associated task');
+            }
+          });
+      },
+      // 过滤用户
+      function (tasks, callback) {
+        var userIds = [];
+        tasks.forEach(function (task) {
+          if (_.indexOf(userIds, task.user_id) !== -1) {
+            return;
+          }
+          userIds.push(task.user_id);
+        });
+        console.log(userIds);
+        callback(null, userIds);
+      },
+      // 发送
+      function (userIds, callback) {
+        async.each(userIds, function (userId) {
+          UserModel
+            .find(userId)
+            .then(function (user) {
+              var msg91u = new Msg91U(user.worker_num);
+              var msg = '任务[' + task.desc + ']' + user.name + '已完成。作为同一故事下的相关人员，你会收到此消息';
+              msg91u.send(msg);
+            });
+          callback(null);
+        }, function (err) {
+          callback(null);
+        });
+      }
+    ], function (err, result) {
+      if (err) {
+        logger.log('91umsg', err);
+      }
+    });
+  },
+  
   upload: function (csvId, info, callback) {
     var props = info.split(',');
     
@@ -109,7 +193,7 @@ var TaskService = {
     async.waterfall([
       // 故事是否存在
       function (callback) {
-        StoryModel
+        TaskModel
           .find({
             where: {title: props[4]}
           })
@@ -178,7 +262,6 @@ var TaskService = {
       }
       callback(err, result);
     });
-    
   }
 };
 

@@ -2,7 +2,7 @@ var Sequelize = require('sequelize');
 var moment = require('moment');
 var base = require('./base');
 
-var StoryModel = base.define('story', {
+var StoryModel = module.exports = base.define('story', {
   title: {
     type: Sequelize.STRING,
   },
@@ -53,5 +53,3 @@ StoryModel.statusDeleted = 99;
 // 关系
 var UserModel = require('./user_model');
 StoryModel.belongsTo(UserModel, {foreignKey: 'leader'});
-
-module.exports = StoryModel;
