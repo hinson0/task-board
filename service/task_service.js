@@ -163,7 +163,6 @@ var TaskService = {
           }
           userIds.push(task.user_id);
         });
-        console.log(userIds);
         callback(null, userIds);
       },
       // 发送
@@ -212,7 +211,7 @@ var TaskService = {
       },
       // 获取用户
       function (tasks, callback) {
-        async.each(tasks, function (task) {
+        async.each(tasks, function (task, cb) {
           UserModel
             .find(task.user_id)
             .then(function (user) {
@@ -220,10 +219,11 @@ var TaskService = {
               var msg = '任务[' + task.desc + ']，今天是截止到期，请及时完成。';
               msg91u.send(msg);
             });
+          cb(null);
         }, function (err) {
           callback(null);
         });
-      },
+      }
     ], function (err, results) {
       callback(err, results);
     });
