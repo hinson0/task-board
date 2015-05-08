@@ -10,11 +10,35 @@ var TaskModel = require('../model/task_model');
 var UserModel = require('../model/user_model');
 var StoryModel = require('../model/story_model');
 var IterationModel = require('../model/iteration_model');
+var ProjectModel = require('../model/project_model');
 
 // 工时统计
-router.get('/hours', checkVersionId);
+router.get('/hours', function (req, res, next) {
+  if (req.query.project_id) {
+    checkProjectId(req, res, next);
+  } else {
+    next();
+  }
+});
+router.get('/hours', function (req, res, next) {
+  if (req.query.version_id) {
+    checkVersionId(req, res, next);
+  } else {
+    next();
+  }
+});
+router.get('/hours', function (req, res, next) {
+  if (req.query.iteration_id) {
+    checkIterationId(req, res, next);
+  } else {
+    next();
+  }
+});
 router.get('/hours', function (req, res) { // 获取统计工时
   var where = {};
+  if (req.query.project_id) {
+    where.project_id = req.project_id.id;
+  }
   if (req.query.version_id) { // 支持版本id
     where.version_id = req.version.id;
   }
@@ -238,6 +262,19 @@ function checkIterationId(req, res, next) { // 检查迭代
         res.json({msg: '迭代不存在'});
       } else {
         req.iteration = iteration;
+        next();
+      }
+    });
+}
+function checkProjectId(req, res, next) {
+  ProjectModel
+    .find(req.query.project_id)
+    .then(function (project) {
+      if (project === null) {
+        res.status(400);
+        res.json({msg: '项目不存在'});
+      } else {
+        req.project = project;
         next();
       }
     });

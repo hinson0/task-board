@@ -227,6 +227,9 @@ router.put('/:id/status', function (req) { // 前置任务完成则推送99U
   TaskService.sendAssociatedMsg(req.task);
 });
 
+// 任务deadline信息通知
+//router.
+
 // 关注任务
 router.post('/:id/concerned', checkTaskId);
 router.post('/:id/concerned', checkUserId);
