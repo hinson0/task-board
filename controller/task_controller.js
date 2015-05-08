@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var moment = require('moment');
 var async = require('async');
+var _ = require('underscore');
 var logger = require('../library/logger');
 
 var IterationModel = require('../model/iteration_model');
@@ -228,7 +229,11 @@ router.put('/:id/status', function (req) { // 前置任务完成则推送99U
 });
 
 // 任务deadline信息通知
-//router.
+router.get('/deadline', function (req, res) {
+  TaskService.sendDeadlineMsg(function (err, results) {
+    res.json({msg: '通知成功'});
+  });
+});
 
 // 关注任务
 router.post('/:id/concerned', checkTaskId);

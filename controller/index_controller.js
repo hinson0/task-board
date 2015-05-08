@@ -18,6 +18,18 @@ var Logger = require('../library/logger');
 router.get('/', function (req, res) {
   
   if (1) {
+//    moment().get('year');
+//    moment().get('month');
+    var year = moment().get('year');
+    var month = moment().get('month') + 1;
+    var date = moment().get('date');
+    console.log(year, month, date);
+    console.log(moment(year + '-' + month + '-' + date, 'YYYY-MM-DD').unix());
+    var time = moment('20150508', 'YYYYMMDD').add(1, 'days').unix();
+    console.log(time);
+  }
+  
+  if (0) {
     var arr = [ 44, 53, 53, 53 ];
     var arr1 = [];
     arr.forEach(function (item) {

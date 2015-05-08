@@ -1,6 +1,7 @@
 var async = require('async');
 var _ = require('underscore');
 var logger = require('../library/logger');
+var moment = require('moment');
 
 var TaskStatusModel = require('../model/task_status_model');
 var TaskFollowModel = require('../model/task_follow_model');
@@ -185,6 +186,46 @@ var TaskService = {
       if (err) {
         logger.log('91umsg', err);
       }
+    });
+  },
+  sendDeadlineMsg: function (callback) {
+    var year = moment().get('year');
+    var month = moment().get('month') + 1;
+    var date = moment().get('date');
+    var todayStart = moment(year + '-' + month + '-' + date, 'YYYY-MM-DD');
+    var todayEnd = moment(todayStart).add(1, 'days');
+
+    async.waterfall([
+      // 获取任务
+      function (callback) {
+        TaskModel
+          .findAll({
+            where: {
+              deadline: {
+                $between: [todayStart.unix(), todayEnd.unix()]
+              }
+            }
+          })
+          .then(function (tasks) {
+            callback(null, tasks);
+          });
+      },
+      // 获取用户
+      function (tasks, callback) {
+        async.each(tasks, function (task) {
+          UserModel
+            .find(task.user_id)
+            .then(function (user) {
+              var msg91u = new Msg91U(user.worker_num);
+              var msg = '任务[' + task.desc + ']，今天是截止到期，请及时完成。';
+              msg91u.send(msg);
+            });
+        }, function (err) {
+          callback(null);
+        });
+      },
+    ], function (err, results) {
+      callback(err, results);
     });
   },
   
