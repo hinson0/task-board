@@ -9,6 +9,7 @@ var UserModel = require('../model/user_model');
 var TaskConcernedModel = require('../model/task_concerned_model');
 var StoryModel = require('../model/story_model');
 var IterationModel = require('../model/iteration_model');
+var Msg91uModel = require('../model/msg91u_model');
 
 var Msg91U = require('../library/msg91u');
 
@@ -54,6 +55,7 @@ var TaskService = {
               .then(function(user) {
                 var msg91u = new Msg91U(user.worker_num);
                 var msg = '前置任务【' + prevTask.desc + '】' + prevTaskUser.name + '已完成，你可以开始【' + task.desc + '】了，加油哟';
+                Msg91uModel.create({content: msg, 'receiver': user.id});
                 msg91u.send(msg);
               });
           });
@@ -91,6 +93,7 @@ var TaskService = {
           .then(function (user) {
             var msg91u = new Msg91U(user.worker_num);
             var msg = '您关注的任务【' + task.desc + '】' + taskUser.name + '已完成';
+            Msg91uModel.create({content: msg, 'receiver': user.id});
             msg91u.send(msg);
           });
         cb(null);
@@ -122,6 +125,7 @@ var TaskService = {
       function (user, callback) {
         var msg91u = new Msg91U(user.worker_num);
         var msg = '任务[' + task.desc + ']' + user.name + '已完成。作为故事负责人，你会收到此消息';
+        Msg91uModel.create({content: msg, 'receiver': user.id});
         msg91u.send(msg);
         callback(null);
       }
@@ -169,6 +173,7 @@ var TaskService = {
             .then(function (user) {
               var msg91u = new Msg91U(user.worker_num);
               var msg = '任务[' + task.desc + ']' + user.name + '已完成。作为同一故事下的相关人员，你会收到此消息';
+              Msg91uModel.create({content: msg, 'receiver': user.id});
               msg91u.send(msg);
             });
           callback(null);

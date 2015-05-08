@@ -4,7 +4,7 @@ var moment = require('moment');
 var base = require('./base');
 
 // 类
-var TaskModel = base.define('task', {
+var TaskModel = module.exports = base.define('task', {
   project_id: {
     type: Sequelize.INTEGER,
   },
@@ -49,6 +49,9 @@ var TaskModel = base.define('task', {
     type: Sequelize.INTEGER,
   },
   end_time: {
+    type: Sequelize.INTEGER
+  },
+  deadline: {
     type: Sequelize.INTEGER
   },
   create_time: {
@@ -102,5 +105,3 @@ TaskModel.belongsTo(StoryModel, {foreignKey: 'story_id'});
 TaskModel.belongsTo(ProjectModel, {foreignKey: 'project_id'});
 TaskModel.belongsTo(VersionModel, {foreignKey: 'version_id'});
 TaskModel.hasMany(TaskConcernedModel, {foreignKey: 'task_id'});
-
-module.exports = TaskModel;

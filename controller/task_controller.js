@@ -78,7 +78,7 @@ router.post('/', checkTaskStausId);
 router.post('/', checkVersionId);
 router.post('/', function (req, res, next) { // 添加任务
   TaskModel
-    .build({
+    .create({
       project_id: req.version.project_id,
       version_id: req.version.id,
       iteration_id: req.iteration.id,
@@ -91,9 +91,9 @@ router.post('/', function (req, res, next) { // 添加任务
       estimated_time: req.body.estimated_time,
       status_id: req.body.task_status_id,
       create_time: moment().unix(),
-      remark: req.body.remark
+      remark: req.body.remark || '',
+      deadline: req.body.deadline || 0
     })
-    .save()
     .then(function (task) {
       req.task = task;
       next();
@@ -139,7 +139,8 @@ router.put('/:id', function (req, res, next) {
       is_challenging: req.body.is_challenging,
       priority: req.body.priority,
       estimated_time: req.body.estimated_time,
-      remark: req.body.remark
+      remark: req.body.remark || '',
+      deadline: req.body.deadline || 0
     })
     .then(function (task) {
       next();

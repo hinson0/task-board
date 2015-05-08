@@ -40,6 +40,7 @@ var StoryController = require('./controller/story_controller');
 var TaskController = require('./controller/task_controller');
 var TaskStatusController = require('./controller/task_status_controller');
 var StatisticController = require('./controller/statistics_controller');
+var MsgController = require('./controller/msg_controller');
 
 app.use('/', SiteController);
 app.use('/user', UserController);
@@ -50,6 +51,7 @@ app.use('/stories', StoryController);
 app.use('/tasks', TaskController);
 app.use('/task_statuses', TaskStatusController);
 app.use('/statisticses', StatisticController);
+app.use('/msgs', MsgController);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
