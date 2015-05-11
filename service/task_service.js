@@ -239,7 +239,7 @@ var TaskService = {
     async.waterfall([
       // 故事是否存在
       function (callback) {
-        TaskModel
+        StoryModel
           .find({
             where: {title: props[4]}
           })
