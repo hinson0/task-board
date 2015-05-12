@@ -263,6 +263,9 @@ router.get('/endtime', function (req, res) {
     .findAll()
     .then(function (tasks) {
       async.each(tasks, function (task) {
+        if (task.isCompleted()) {
+          return;
+        }
         if (task.end_time === 0 && task.start_time !== 0) {
           task
             .update({
@@ -274,6 +277,66 @@ router.get('/endtime', function (req, res) {
       });
     });
     res.json({msg: 'ok'});
+});
+
+/**
+ * 将未完成的任务end_time重置0
+ */
+router.get('/repair_endtime', function (req, res) {
+  TaskModel
+    .findAll({
+      where: {status_id: {$ne: 50}, end_time: {$ne: 0}}
+    })
+    .then(function (tasks) {
+      async.each(tasks, function (task) {
+        task.update({end_time: 0});
+      }, function (err) {
+        console.log(err);
+      });
+    });
+  res.json({msg: '重置完成'});
+});
+
+/**
+ * 将待开发的start_time重置0
+ */
+router.get('/repair_starttime', function (req, res) {
+  TaskModel
+    .findAll({
+      where: {status_id: 10, start_time:{$ne: 0}}
+    })
+    .then(function (tasks) {
+      async.each(tasks, function (task) {
+        task.update({start_time: 0});
+      }, function (err) {
+        console.log(err);
+      });
+    });
+  res.json({msg: '重置完成'});
+});
+
+/**
+ * 将start_time=0的记录值为4.30
+ */
+router.get('/starttime', function (req, res) {
+  TaskModel
+    .findAll({
+      where: {start_time: 0, status_id: 50}
+    })
+    .then(function (tasks) {
+      async.each(tasks, function (task) {
+        var props = {
+          start_time: moment('2015-04-30', 'YYYY-MM-DD').unix()
+        };
+        if (task.end_time === 0) {
+          props.end_time = moment('2015-04-30', 'YYYY-MM-DD').unix()
+        }
+        task.update(props);
+      }, function (err) {
+        res.json(err);
+      });
+    });
+  res.json({msg: 'ok'});
 });
 
 module.exports = router;

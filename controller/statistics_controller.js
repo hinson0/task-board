@@ -11,6 +11,7 @@ var UserModel = require('../model/user_model');
 var StoryModel = require('../model/story_model');
 var IterationModel = require('../model/iteration_model');
 var ProjectModel = require('../model/project_model');
+var TaskFollowModel = require('../model/task_follow_model');
 
 // 工时统计
 router.get('/hours', function (req, res, next) {
@@ -36,6 +37,12 @@ router.get('/hours', function (req, res, next) {
 });
 router.get('/hours', function (req, res) { // 获取统计工时
   var where = {};
+  var versionWhere = {
+    status: VersionModel.statusOnline
+  };
+  var iterationWhere = {
+    status: IterationModel.statusOnline
+  };
   if (req.query.project_id) {
     where.project_id = req.project_id.id;
   }
@@ -53,14 +60,17 @@ router.get('/hours', function (req, res) { // 获取统计工时
     if (req.query.end_time) {
       where.end_time.$lte = req.query.end_time;
     }
+    where.status_id = TaskFollowModel.idCompleted;
+    versionWhere.status = VersionModel.statusClosed;
+    iterationWhere.status = IterationModel.statusClosed;
   }
   TaskModel
     .findAll({
       where: where,
       include: [
         {model: UserModel},
-        {model: VersionModel, where: {status: VersionModel.statusOnline}},
-        {model: IterationModel, where: {status: IterationModel.statusOnline}}
+        {model: VersionModel, where: versionWhere},
+        {model: IterationModel, where: iterationWhere}
       ],
       order: 'user_id ASC'
     })

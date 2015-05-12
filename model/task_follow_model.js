@@ -1,7 +1,7 @@
 var Sequelize = require('sequelize');
 var base = require('./base');
 
-var TaskFollowModel = base.define('task_follow', {
+var TaskFollowModel = module.exports = base.define('task_follow', {
   task_id: {
     type: Sequelize.INTEGER,
   },
@@ -17,4 +17,6 @@ var TaskFollowModel = base.define('task_follow', {
   }
 });
 
-module.exports = TaskFollowModel;
+TaskFollowModel.idWaiting = 10;
+TaskFollowModel.idIng = 20;
+TaskFollowModel.idCompleted = 50;
