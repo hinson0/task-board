@@ -32,10 +32,9 @@ router.get('/list', function (req, res) {
       limit: req.query.limit || 0,
       include: [
         {
-          model: VersionModel, 
-          where: {status: VersionModel.statusOnline}, 
+          model: VersionModel,
           include: [
-            {model: IterationModel, where: {status: IterationModel.statusOnline}}
+            {model: IterationModel}
           ]
         }
       ],

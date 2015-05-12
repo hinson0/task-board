@@ -11,13 +11,43 @@ var IterationModel = require('../model/iteration_model');
 var VersionModel = require('../model/version_model');
 var ProjectModel = require('../model/project_model');
 var StoryModel = require('../model/story_model');
+var TaskModel = require('../model/task_model');
 
 var Logger = require('../library/logger');
 
 /* GET home page. */
 router.get('/', function (req, res) {
   
-  if (1) {
+  if (0) {
+    ProjectModel
+      .find(54)
+      .then(function (project) {
+        project
+          .getVersions()
+          .then(function (versions) {
+            res.json(versions);
+          });
+      });
+  }
+  
+  if (0) {
+    ProjectModel
+      .findAll({
+        include: [
+          {
+            model: VersionModel,
+            where: {status: {$ne: 99}},
+          }
+        ],
+        offset: 0,
+        limit: 10
+      })
+      .then(function (versions) {
+        res.json(versions);
+      });
+  }
+  
+  if (0) {
 //    moment().get('year');
 //    moment().get('month');
     var year = moment().get('year');
@@ -223,6 +253,27 @@ router.get('/', function (req, res) {
         res.json(iteration);
       });
   }
+});
+
+/**
+ * 导入end_time
+ */
+router.get('/endtime', function (req, res) {
+  TaskModel
+    .findAll()
+    .then(function (tasks) {
+      async.each(tasks, function (task) {
+        if (task.end_time === 0 && task.start_time !== 0) {
+          task
+            .update({
+              end_time: task.start_time
+            });
+        }
+      }, function (err) {
+        console.log(err);
+      });
+    });
+    res.json({msg: 'ok'});
 });
 
 module.exports = router;
