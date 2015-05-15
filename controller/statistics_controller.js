@@ -61,8 +61,8 @@ router.get('/hours', function (req, res) { // 获取统计工时
       where.end_time.$lte = req.query.end_time;
     }
     where.status_id = TaskFollowModel.idCompleted;
-    versionWhere.status = VersionModel.statusClosed;
-    iterationWhere.status = IterationModel.statusClosed;
+    versionWhere.status = {$between: [VersionModel.statusOnline, VersionModel.statusClosed]};
+    iterationWhere.status = {$between: [IterationModel.statusOnline, IterationModel.statusClosed]};
   }
   TaskModel
     .findAll({
