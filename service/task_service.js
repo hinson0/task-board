@@ -14,7 +14,7 @@ var Msg91uModel = require('../model/msg91u_model');
 
 var Msg91U = require('../library/msg91u');
 
-var TaskService = {
+var TaskService = module.exports = {
   send91umsg: function(prevTask) { // 前置任务完成则推送99U
     // 查找关联
     var findTaskFollows = function(callback) {
@@ -202,7 +202,8 @@ var TaskService = {
             where: {
               deadline: {
                 $between: [todayStart.unix(), todayEnd.unix()]
-              }
+              },
+              status: TaskModel.statusOnline
             }
           })
           .then(function (tasks) {
@@ -310,5 +311,3 @@ var TaskService = {
     });
   }
 };
-
-module.exports = TaskService;
