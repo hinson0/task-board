@@ -55,7 +55,7 @@ router.get('/', function (req, res) {
         {model: TaskStatusModel},
         {model: TaskFollowModel},
         {model: TaskHistoryModel},
-        {model: StoryModel},
+        {model: StoryModel, where: {status: StoryModel.statusOnline}},
         {model: IterationModel, where: {status: IterationModel.statusOnline}},
         {model: VersionModel},
         {model: ProjectModel},

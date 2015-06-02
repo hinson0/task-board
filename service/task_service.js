@@ -313,7 +313,7 @@ var TaskService = module.exports = {
             create_time: 1
           })
           .then(function (task) {
-            logger.log('csv', '任务 - 故事[' + task.desc + ']导入成功，ID=' + task.id, csvId);
+            logger.log('csv', '任务 - [' + task.desc + ']导入成功，ID=' + task.id, csvId);
             callback(null);
           })
           .catch(function (err) {

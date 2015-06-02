@@ -78,9 +78,9 @@ var StoryService = {
           })
           .spread(function (story, created) {
             if (created) {
-              logger.log('故事 - [' + story.title + ']导入成功，ID=' + story.id, csvId);
+              logger.log('csv', '故事 - [' + story.title + ']导入成功，ID=' + story.id, csvId);
             } else {
-              logger.log('故事 - [' + story.title + ']已存在，ID=' + story.id +'，忽略', csvId);
+              logger.log('csv', '故事 - [' + story.title + ']已存在，ID=' + story.id +'，忽略', csvId);
             }
             callback(null);
           });
