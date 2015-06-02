@@ -36,7 +36,9 @@ router.get('/hours', function (req, res, next) {
   }
 });
 router.get('/hours', function (req, res) { // 获取统计工时
-  var where = {};
+  var where = {
+    status: {$ne: TaskModel.statusOffline}
+  };
   var versionWhere = {
     status: VersionModel.statusOnline
   };
@@ -171,6 +173,7 @@ router.get('/bdc', function (req, res) {
     function (dates, details, callback) { // 获取任务
       var where = {
         version_id: req.version.id,
+        status: {$ne: TaskModel.statusOffline}
       };
       if (req.query.iteration_id) {
         where.iteration_id = req.query.iteration_id;
