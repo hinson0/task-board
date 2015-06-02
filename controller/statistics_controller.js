@@ -70,7 +70,8 @@ router.get('/hours', function (req, res) { // 获取统计工时
       include: [
         {model: UserModel},
         {model: VersionModel, where: versionWhere},
-        {model: IterationModel, where: iterationWhere}
+        {model: IterationModel, where: iterationWhere},
+        {model: StoryModel, where: {status: {$ne: StoryModel.statusDeleted}}}
       ],
       order: 'user_id ASC'
     })
@@ -169,14 +170,17 @@ router.get('/bdc', function (req, res) {
     },
     function (dates, details, callback) { // 获取任务
       var where = {
-        version_id: req.version.id
+        version_id: req.version.id,
       };
       if (req.query.iteration_id) {
         where.iteration_id = req.query.iteration_id;
       }
       TaskModel
         .findAll({
-          where: where
+          where: where,
+          include: [
+            {model: StoryModel, where: {status: {$ne: StoryModel.statusDeleted}}}
+          ],
         })
         .then(function (tasks) {
           callback(null, dates, details, tasks);
