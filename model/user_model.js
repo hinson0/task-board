@@ -1,7 +1,7 @@
 var Sequelize = require('sequelize');
 var base = require('./base');
 
-var UserModel = base.define('user', {
+var UserModel = module.exports = base.define('user', {
   xxjia_user_id: {
     type: Sequelize.INTEGER,
   },
@@ -21,5 +21,3 @@ var UserModel = base.define('user', {
     type: Sequelize.INTEGER,
   },
 });
-
-module.exports = UserModel;
