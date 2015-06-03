@@ -154,7 +154,6 @@ var TaskService = module.exports = {
       },
       // 找到相关任务
       function (taskUser, callback) {
-        console.log(2222222);
         TaskModel
           .findAll({
             where: {
