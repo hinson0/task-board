@@ -118,7 +118,7 @@ function checkVt(req, res, next) { // title是否已经存在
     });
 }
 function isVtChanged(req, story) {
-  return req.body.title !== story.title || req.body.version_id !== story.version_id;
+  return req.body.title !== story.title || parseInt(req.body.version_id) !== parseInt(story.version_id);
 }
 
 module.exports = router;
