@@ -41,7 +41,7 @@ var Logger = {
   },
   _mkdirs: function (dir, mode, callback) {
     var self = this;
-    path.exists(dir, function (exists) {
+    fs.exists(dir, function (exists) {
       if (exists) {
         callback(null);
       } else {
