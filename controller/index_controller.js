@@ -17,242 +17,117 @@ var Logger = require('../library/logger');
 
 /* GET home page. */
 router.get('/', function (req, res) {
+  res.end('welcome!');
+});
+
+router.get('/async', function (req, res) {
+//  async.series([
+//    function (cb) {
+//      console.log(1);
+//      cb(null, {world: 2});
+//    },
+//    function (cb) {
+//      console.log(2);
+//      cb(null, {hello: 1});
+//    }
+//  ], function (err, result) {
+//    if (err) {
+//      res.status(400);
+//      res.json({msg: 'err message'});
+//    } else {
+//      res.json(result);
+//    }
+//  });
+
+//  async.parallel([
+//    function (cb) {
+//      console.log(1);
+//      cb();
+////      cb(null, {world: 2, xxx: 222}, {xxxxx: 2222});
+//    },
+//    function (cb) {
+//      console.log(2);
+//      cb('dddd');
+//    },
+//    function (cb) {
+//      console.log(3);
+//      cb(null, {foo: 1});
+//    },
+//  ], function (err, result) {
+//    if (err) {
+//      res.status(400);
+//      res.json({msg: 'err message'});
+//    } else {
+//      res.json(result);
+//    }
+//  });
   
-  if (0) {
-    ProjectModel
-      .find(54)
-      .then(function (project) {
-        project
-          .getVersions()
-          .then(function (versions) {
-            res.json(versions);
-          });
-      });
-  }
-  
-  if (0) {
-    ProjectModel
-      .findAll({
-        include: [
-          {
-            model: VersionModel,
-            where: {status: {$ne: 99}},
-          }
-        ],
-        offset: 0,
-        limit: 10
-      })
-      .then(function (versions) {
-        res.json(versions);
-      });
-  }
-  
-  if (0) {
-//    moment().get('year');
-//    moment().get('month');
-    var year = moment().get('year');
-    var month = moment().get('month') + 1;
-    var date = moment().get('date');
-    console.log(year, month, date);
-    console.log(moment(year + '-' + month + '-' + date, 'YYYY-MM-DD').unix());
-    var time = moment('20150508', 'YYYYMMDD').add(1, 'days').unix();
-    console.log(time);
-  }
-  
-  if (0) {
-    var arr = [ 44, 53, 53, 53 ];
-    var arr1 = [];
-    arr.forEach(function (item) {
-      console.log(item in arr1);
-      if (_.indexOf(arr1, item) !== -1) {
-        return;
-      }
-      arr1.push(item);
-    });
-    res.json(arr1);
-  }
-  
-  if (0) {
-    fs.stat('/data/cephfs/log/board/csv-80.log', function (err, info) {
-      res.json(info);
-    });
-    
-  }
-  
-  if (0) {
-    var relaxed = '20150102,20150103';
-    var startDate = moment(1420070400, 'X');
-    var endDate = moment(1422921600, 'X');
-    var dates = [];
-    while (endDate.isAfter(startDate)) {
-      var format = startDate.format('YYYYMMDD');
-      if (relaxed.indexOf(format) === -1) {
-        dates.push(format);
-      }
-      startDate.add(1, 'days');
+  async.waterfall([
+    function (cb) {
+      cb(null, 'hello');
+    },
+    function (arg, cb) {
+      cb(null, arg, 'world');
+    },
+    function (arg1, arg2, cb) {
+      cb(null, arg1, arg2);
     }
-    dates.push(endDate.format('YYYYMMDD'));
-    console.log(dates);
-  }
+  ], function (err, result1, result2) {
+    res.json(result1);
+  });
+
+//  async.map(['file1', 'file2', 'file3'], function () {
+//    
+//  }, function (err, result) {
+//    if (err) {
+//      res.status(400);
+//      res.json({msg: err});
+//    } else {
+//      res.json(result);
+//    }
+//  });
+
+
+//  var arr = ['file1', 'file2', 'file3'];
+//  
+//  arr.forEach(function (item) {
+//    console.log(item);
+//  });
+//  res.json({msg: 'ok'});
   
-  /**
-   * 
-   */
-  if (0) {
-    var newDates = {};
-    
-    
-//    console.log(newDates.date === undefined); // true
-//    console.log(newDates.date === 'undefined'); // false
-    dates = [20150101, 20150102, 20150103, 20150101];
-    dates.forEach(function (date) {
-//      if (newDates.date === undefined) {
-//        newDates[date] = 0;
-//      } else {
-//        newDates[date] += 1;
-//      }
-
-      if (date in newDates) {
-        console.log(1);
-        newDates[date] += 1;
-      } else {
-        newDates[date] = 0;
-      }
-
-    });
-    console.log(newDates);
-  }
+//  var arr = ['file1', 'file2', 'file3'];
+//  async.eachSeries(arr, function (item, cb) {
+//    console.log(item);
+//    if (item === 'file2') {
+//      cb('file2', null);
+//    } else {
+//      cb(null);
+//    }
+//  }, function (err) {
+//    if (err) {
+//      res.status(400);
+//      res.json({msg: 'err message'});
+//    } else {
+//      res.json({msg: 'ok'});
+//    }
+//  });
   
-  /**
-   * 时间
-   */
-  if (0) {
-    var startDate = moment(1426905668, 'X').format('YYYYMMDD');
-    var endDate = moment(1435632068, 'X').format('YYYYMMDD');
-    
-    startDate = 20150101;
-    endDate = 20150130;
-    var relaxed = '20150103,20150128';
-    
-    var dates =  [];
-    for (var i = startDate; i <= endDate; i++) {
-      if (relaxed.indexOf(i) === -1) {
-        dates.push(i);
-      }
-    }
-    console.log(dates);
-  }
-  
-  /**
-   * async map
-   */
-  if (0) {
-    async.map([1, 2, 3], function (item, cb) {
-      item = item + 1;
-      if (item === 2) {
-        cb(111);
-        return;
-      }
-      cb(null, item);
-    }, function (err, result) {
-      res.json(err);
-      res.json(result);
-    });
-  }
-  
-  /**
-   * story数据转移
-   */
-  if (0) {
-    async.waterfall([
-      function (callback) { // 读取表story，填充version_id
-        StoryModel
-          .findAll()
-          .then(function (stories) {
-            stories.forEach(function (story) {
-              if (story === null) {
-                callback(null);
-              }
-              if (story.version_id !== 0) {
-                callback(null);
-              }
-              IterationModel
-                .find(story.iteration_id)
-                .then(function (iteration) {
-                  if (iteration === null) {
-                    return;
-                  }
-                  story
-                    .updateAttributes({
-                      version_id: iteration.version_id
-                    })
-                    .then(function (story) {
-                      callback(null);
-                    });
-                });
-            });
-          });
-      },
-    ], function (err, result) {
-      res.json(result);
-    });
-  }
-
-
-  /**
-   * story数据转移
-   */
-  if (0) {
-    // 读取表story，填充version_id
-    Sequelize
-      .transaction()
-      .then(function (t) {
-        return PostModel.create({
-          title: 'hello',
-          content: 'ddddd'
-        }, {transaction: t}).then(function (post) {
-          return PostModel
-            .create({
-              ti1tle: 'xxx',
-              content: 'dddd'
-            }, {transaction: t});
-        });
-      })
-      .then(function () {
-        console.log('commit');
-        t.commit();
-      })
-      .catch(function () {
-        console.log('rollback');
-        t.rollback();
-      });
-      res.json({id: 1});
-  }
-
-  /**
-   * testing
-   */
-  if (0) {
-    res.json({id: PostModel.statusOffline});
-  }
-
-  /**
-   * nested eager loading
-   */
-  if (0) {
-    IterationModel
-      .find({
-        where: {
-          id: 21
-        },
-        include: [
-          {model: VersionModel, include: [ProjectModel]},
-        ]
-      })
-      .then(function (iteration) {
-        res.json(iteration);
-      });
-  }
+//  var arr = ['file1', 'file2', 'file3'];
+//  async.each(arr, function (item, cb) {
+//    console.log(item);
+//    if (item === 'xxx') {
+//      cb('xxx');
+//    } else {
+//      cb(null);
+//    }
+//  }, function (err) {
+//    if (err) {
+//      res.status(400);
+//      res.json({msg: err});
+//    } else {
+//      res.json({msg: 'ok'});
+//    }
+//  });
 });
 
 /**

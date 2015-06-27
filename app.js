@@ -6,6 +6,8 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var multer = require('multer');
 var session = require('express-session');
+var MongoStore = require('connect-mongo')(session);
+var validator = require('express-validator');
 
 var app = express();
 
@@ -18,12 +20,29 @@ app.set('view engine', 'ejs');
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
+app.use(validator({
+  customValidators: {
+    isArray: function(value) { // 判断是否为数组
+      return Array.isArray(value);
+    }
+  },
+  errorFormatter: function (param, msg, value) { // 格式化错误输出结果
+    return {
+      param: param,
+      msg: msg,
+      value: value
+    };
+  }
+}));
 app.use(cookieParser());
 app.use(session({
-  secret: 'keyboard cat',
+  secret: 'flzt',
   resave: false, // 如果为true，则每次都会强制将session数据保存起来；在一个客户端并发多次请求时，如果第一次请求将session发生变化，后续的请求将会无效了
   saveUninitialized: true,
-  cookie: {maxAge: 60000}
+  cookie: {
+    maxAge: 10 * 1000
+  },
+  store: new MongoStore(require('./config/mongodb'))
 }));
 app.use(require('stylus').middleware(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -49,7 +68,6 @@ var TaskStatusController = require('./controller/task_status_controller');
 var StatisticController = require('./controller/statistics_controller');
 var MsgController = require('./controller/msg_controller');
 var TestController = require('./controller/test_controller');
-
 
 app.use('/', SiteController);
 app.use('/user', UserController);
