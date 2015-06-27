@@ -5,6 +5,7 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var multer = require('multer');
+var session = require('express-session');
 
 var app = express();
 
@@ -18,6 +19,12 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(cookieParser());
+app.use(session({
+  secret: 'keyboard cat',
+  resave: false, // 如果为true，则每次都会强制将session数据保存起来；在一个客户端并发多次请求时，如果第一次请求将session发生变化，后续的请求将会无效了
+  saveUninitialized: true,
+  cookie: {maxAge: 60000}
+}));
 app.use(require('stylus').middleware(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(multer({
@@ -41,6 +48,8 @@ var TaskController = require('./controller/task_controller');
 var TaskStatusController = require('./controller/task_status_controller');
 var StatisticController = require('./controller/statistics_controller');
 var MsgController = require('./controller/msg_controller');
+var TestController = require('./controller/test_controller');
+
 
 app.use('/', SiteController);
 app.use('/user', UserController);
@@ -52,6 +61,7 @@ app.use('/tasks', TaskController);
 app.use('/task_statuses', TaskStatusController);
 app.use('/statisticses', StatisticController);
 app.use('/msgs', MsgController);
+app.use('/test', TestController);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
