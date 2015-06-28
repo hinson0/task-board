@@ -10,30 +10,6 @@ var UserModel = require('../model/user_model');
 var Msg91u = require('../library/msg91u');
 
 // 登陆
-router.post('/login', function (req, res) {
-  // 请求xxjia.cn的登陆地址
-  UserService.loginFromXxjia(req.body, function (err, loginInfo) {
-    // 异常
-    if (err) {
-      res.status(400);
-      res.json(err);
-      return;
-    }
-
-    // 是否正常请求
-    if (!loginInfo.uid) {
-      res.status(400);
-      res.json({msg: loginInfo.error.msg});
-      return;
-    }
-
-    UserService.saveWhenLoginFromXxjia(loginInfo, req.body.account, function (user) {
-      res.json({id: user.id});
-    });
-  });
-});
-
-// 登陆
 router.post('/login2', checkLogin);
 router.post('/login2', function (req, res) {
   async.waterfall([
@@ -68,6 +44,7 @@ router.post('/login2', function (req, res) {
       res.json({msg: '用户不存在'});
       return;
     }
+
     if (!user.isPasswordValid(req.body.password)) {
       res.status(403);
       res.json({msg: '密码错误'});
@@ -77,7 +54,6 @@ router.post('/login2', function (req, res) {
     req.session.user_id = user.id;
     req.session.user = user;
     res.json({id: user.id});
-
   });
 });
 

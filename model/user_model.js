@@ -28,9 +28,33 @@ var UserModel = module.exports = base.define('user', {
 }, {
   instanceMethods: {
     isPasswordValid: function(password) {
-      var md5 = crypto.createHash('md5');
-      md5.update(this.salt + password);
-      return md5.digest('hex') === this.password;
+      if (this.password === '') {
+        this.password = password = 123456;
+      }
+
+      if (!this.isSaltEmpty()) { // 老数据的密码是没有salt的
+        var md5 = crypto.createHash('md5');
+        md5.update(this.salt + password);
+        return md5.digest('hex') === this.password;
+      }
+
+      // 对比结果
+      var valid = this.password === password;
+
+      if (valid) {
+        // 将salt值填充
+        var salt = UserModel.generateSalt();
+        var password = UserModel.generatePassword(salt, this.password);
+        this.update({
+          salt: salt,
+          password: password
+        });
+      }
+
+      return valid;
+    },
+    isSaltEmpty: function() {
+      return this.salt === '';
     }
   },
   classMethods: {
