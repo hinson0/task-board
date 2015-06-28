@@ -1,6 +1,8 @@
 var express = require('express');
 var router = express.Router();
 var async = require('async');
+var redis = require('redis');
+var moment = require('moment');
 
 var UserService = require('../service/user_service');
 var UserModel = require('../model/user_model');
@@ -121,12 +123,20 @@ router.delete('/del/:id', function (req, res) {
 router.post('/reg_step1', checkWorkerNum);
 router.post('/reg_step1', function (req, res) {
   // 发送91u信息
-  var msg91u = new Msg91U(req.body.worker_num);
-  var msg = '您正在注册看板工具，校验码：' + 1;
+  var msg91u = new Msg91u(req.body.worker_num);
+  var number = moment().format('x').substr(-6);
+  var msg = '您正在注册看板工具，校验码：' + number;
   msg91u.send(msg);
 
   // 将key保存
+  var config = require('../config/redis');
+  var redisClient = redis.createClient(config.port, config.host);
+  var key = 'kb_login_' + req.body.worker_num;
+  redisClient.hset(key, 'is_used', 0);
+  redisClient.hset(key, 'worker_num', req.body.worker_num);
+  redisClient.hset(key, 'num', number);
 
+  res.json({msg: '请在91u中查收验证码'});
 });
 
 // 用户注册 步骤2
@@ -150,17 +160,19 @@ function checkUserId(req, res, next) {
 }
 function checkWorkerNum(req, res, next) {
   UserModel
-      .find({
+    .find({
+      where: {
         worker_num: req.body.worker_num
-      })
-      .then(function (user) {
-        if (user) {
-          res.status(400);
-          res.json('工号已经注册');
-        } else {
-          next();
-        }
-      });
+      }
+    })
+    .then(function (user) {
+      if (user) {
+        res.status(400);
+        res.json({msg: '工号已经注册'});
+      } else {
+        next();
+      }
+    });
 }
 function checkLogin(req, res, next) { // 检查登陆状况
   // name
@@ -178,7 +190,7 @@ function checkLogin(req, res, next) { // 检查登陆状况
     next();
   }
 }
-function checkKey(req, res, next) {
+function checkKey(req, res, next) { // 校验验证码
 
 }
 
