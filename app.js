@@ -48,7 +48,7 @@ app.use(session({
     maxAge: 7 * 24 * 60 * 60 * 1000 // 7天
   },
   store: new RedisStore({
-    client: require('./library/redis_client').create()
+    client: require('./library/redis').create()
   })
 }));
 

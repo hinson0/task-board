@@ -1,7 +1,7 @@
 var redis = require('redis');
 var crypto = require('crypto');
 
-var RedisClient = {
+var Redis = {
   clients: [],
   create: function (config) {
     console.log('获取redis client实例');
@@ -30,4 +30,4 @@ var RedisClient = {
   }
 };
 
-module.exports = RedisClient;
+module.exports = Redis;

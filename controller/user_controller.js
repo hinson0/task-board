@@ -4,7 +4,7 @@ var async = require('async');
 var redis = require('redis');
 var moment = require('moment');
 
-var RedisClient = require('../library/redis_client');
+var Redis = require('../library/redis');
 var UserService = require('../service/user_service');
 var UserModel = require('../model/user_model');
 var Msg91u = require('../library/msg91u');
@@ -85,7 +85,6 @@ router.post('/login2', function (req, res) {
 router.post('/logout', function () {
 
 });
-
 // 列表
 router.get('/list', UserService.checkSession);
 router.get('/list', function (req, res, next) {
@@ -136,7 +135,7 @@ router.post('/reg_step1', function (req, res) {
   msg91u.send(msg);
 
   // 将key保存
-  var redisClient = RedisClient.create();
+  var redisClient = Redis.create();
   var key = getKey(req.body.worker_num);
   redisClient.hset(key, 'is_used', 0);
   redisClient.hset(key, 'worker_num', req.body.worker_num);
@@ -232,7 +231,7 @@ function checkReg(req, res, next) {
   }
 }
 function checkKey(req, res, next) { // 校验验证码
-  var redisClient = RedisClient.create();
+  var redisClient = Redis.create();
   var key = getKey(req.body.worker_num);
     redisClient.hgetall(key, function (err, obj) {
     if (obj === null) {
