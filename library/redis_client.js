@@ -1,7 +1,7 @@
 var redis = require('redis');
 var crypto = require('crypto');
 
-var RedisClient = module.exports = {
+var RedisClient = {
   clients: [],
   create: function (config) {
     console.log('获取redis client实例');
@@ -17,7 +17,10 @@ var RedisClient = module.exports = {
     if (!this.clients[key]) {
       console.log('缓存中没有，开始创建redis client实例');
       this.clients[key] = redis.createClient(config.port, config.host);
+    } else {
+      console.log('读取缓存中的redis client实例');
     }
+
     return this.clients[key];
   },
   key: function (config) {
@@ -26,3 +29,5 @@ var RedisClient = module.exports = {
     return md5.digest('hex').substr(0, 4);
   }
 };
+
+module.exports = RedisClient;

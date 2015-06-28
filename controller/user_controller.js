@@ -4,6 +4,7 @@ var async = require('async');
 var redis = require('redis');
 var moment = require('moment');
 
+var RedisClient = require('../library/redis_client');
 var UserService = require('../service/user_service');
 var UserModel = require('../model/user_model');
 var Msg91u = require('../library/msg91u');
@@ -40,8 +41,7 @@ router.post('/login2', function (req, res) {
       UserModel
         .find({
           where: {
-            worker_num: req.body.name,
-            password: req.body.password
+            worker_num: req.body.name
           }
         })
         .then(function (user) {
@@ -55,8 +55,7 @@ router.post('/login2', function (req, res) {
       UserModel
         .find({
           where: {
-            mobile: req.body.name,
-            password: req.body.password
+            mobile: req.body.name
           }
         })
         .then(function (user) {
@@ -64,14 +63,21 @@ router.post('/login2', function (req, res) {
         });
     },
   ], function (err, user) {
-    if (user) {
-      req.session.user_id = user.id;
-      req.session.user = user;
-      res.json({id: user.id});
-    } else {
-      res.status(400);
-      res.json({msg: '用户不存在/密码错误'});
+    if (user === null) {
+      res.status(403);
+      res.json({msg: '用户不存在'});
+      return;
     }
+    if (!user.isPasswordValid(req.body.password)) {
+      res.status(403);
+      res.json({msg: '密码错误'});
+      return;
+    }
+
+    req.session.user_id = user.id;
+    req.session.user = user;
+    res.json({id: user.id});
+
   });
 });
 
@@ -120,6 +126,7 @@ router.delete('/del/:id', function (req, res) {
 });
 
 // 用户注册 步骤1
+router.post('/reg_step1', checkReg);
 router.post('/reg_step1', checkWorkerNum);
 router.post('/reg_step1', function (req, res) {
   // 发送91u信息
@@ -129,20 +136,38 @@ router.post('/reg_step1', function (req, res) {
   msg91u.send(msg);
 
   // 将key保存
-  var config = require('../config/redis');
-  var redisClient = redis.createClient(config.port, config.host);
-  var key = 'kb_login_' + req.body.worker_num;
+  var redisClient = RedisClient.create();
+  var key = getKey(req.body.worker_num);
   redisClient.hset(key, 'is_used', 0);
   redisClient.hset(key, 'worker_num', req.body.worker_num);
+  redisClient.hset(key, 'password', req.body.password);
   redisClient.hset(key, 'num', number);
+  redisClient.expire(key, 60);
 
   res.json({msg: '请在91u中查收验证码'});
 });
 
 // 用户注册 步骤2
 router.post('/reg_step2', checkKey);
-router.post('/reg_step2', function (req, res, next) {
-  
+router.post('/reg_step2', function (req, res) {
+  var salt = UserModel.generateSalt();
+  var password = UserModel.generatePassword(salt, req.password);
+
+  UserModel
+    .create({
+      worker_num: req.body.worker_num,
+      password: password,
+      salt: salt,
+      create_time: moment().unix()
+    })
+    .then(function (user) {
+      if (user) {
+        res.json({id: user.id});
+      } else {
+        res.status(500);
+        res.json({msg: '注册失败'});
+      }
+    });
 });
 
 function checkUserId(req, res, next) {
@@ -190,8 +215,49 @@ function checkLogin(req, res, next) { // 检查登陆状况
     next();
   }
 }
-function checkKey(req, res, next) { // 校验验证码
+function checkReg(req, res, next) {
+  // name
+  req.checkBody('worker_num', '请提供91U员工号').notEmpty();
 
+  // password
+  req.checkBody('password', '请提供密码').notEmpty();
+
+  var errors = req.validationErrors(true);
+
+  if (errors) {
+    res.status(400);
+    res.json(errors);
+  } else {
+    next();
+  }
+}
+function checkKey(req, res, next) { // 校验验证码
+  var redisClient = RedisClient.create();
+  var key = getKey(req.body.worker_num);
+    redisClient.hgetall(key, function (err, obj) {
+    if (obj === null) {
+      res.status(403);
+      res.json({msg: '请核实验证码'});
+      return;
+    }
+    console.log('验证码' + req.body.number + '对应的值为' + JSON.stringify(obj));
+    if (parseInt(obj.is_used)) {
+      res.status(403);
+      res.json({msg: '验证码已使用'});
+      return;
+    }
+    if (parseInt(obj.num) !== parseInt(req.body.number)) {
+      res.status(403);
+      res.json({msg: '验证码错误'});
+      return;
+    }
+    req.password = obj.password;
+    redisClient.hset(key, 'is_used', 1);
+    next();
+  });
+}
+function getKey(number) { // redis中key
+  return 'kb_login_' + number;
 }
 
 module.exports = router;

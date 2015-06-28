@@ -21,6 +21,8 @@ app.set('view engine', 'ejs');
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
+
+// 数据校验
 app.use(validator({
   customValidators: {
     isArray: function(value) { // 判断是否为数组
@@ -35,6 +37,8 @@ app.use(validator({
     };
   }
 }));
+
+// cookie & session
 app.use(cookieParser());
 app.use(session({
   secret: 'flzt',
@@ -47,11 +51,15 @@ app.use(session({
     client: require('./library/redis_client').create()
   })
 }));
+
+// 文件上传
 app.use(require('stylus').middleware(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(multer({
   dest: '/tmp/board'
 }));
+
+// 跨域
 app.use(function (req, res, next) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
