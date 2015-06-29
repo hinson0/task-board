@@ -1,7 +1,5 @@
 // 依赖
 var http = require('http');
-var xxjia = require('../config/xxjia');
-var UserModel2 = require('../model/user_model');
 
 // UserService
 var User = module.exports = {
