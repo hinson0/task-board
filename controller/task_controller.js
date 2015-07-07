@@ -20,6 +20,10 @@ var CsvModel = require('../model/csv_model');
 var TaskService = require('../service/task_service');
 var RouterService = require('../service/router_service');
 var CsvService = require('../service/csv_service');
+var UserService = require('../service/user_service');
+
+// 全局
+router.use('/', UserService.checkSession);
 
 // 呈现列表
 router.get('/', function (req, res, next) {
@@ -104,6 +108,11 @@ router.post('/', function (req, res, next) { // 添加任务
     });
 
 });
+router.post('/', function (req, res, next) { // 通知用户
+  if (!UserService.isMe(req, req.body.user_id)) {
+    TaskService.sendGenTaskMsg(req.body.desc, req.user);
+  }
+});
 router.post('/', function (req, res) { // 前置任务添加
   async.each(req.prevTaskIds, function (prevTaskId, callback) {
     TaskFollowModel
@@ -127,6 +136,12 @@ router.put('/:id', checkVersionId);
 router.put('/:id', checkUserId);
 router.put('/:id', checkStoryId);
 router.put('/:id', checkPrevTaskIds);
+router.put('/:id', function (req, res, next) { // 给故事原作者，新作者发送信息推送
+  if (!UserService.isMe(req, req.body.user_id)) {
+    TaskService.sendUpdateTaskMsg(req.task, req.user, req.session.user);
+  }
+  next();
+});
 router.put('/:id', function (req, res, next) {
   req.task
     .update({

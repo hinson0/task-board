@@ -6,7 +6,6 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var multer = require('multer');
 var session = require('express-session');
-//var MongoStore = require('connect-mongo')(session);
 var RedisStore = require('connect-redis')(session);
 var validator = require('express-validator');
 

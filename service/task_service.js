@@ -14,7 +14,7 @@ var Msg91uModel = require('../model/msg91u_model');
 
 var Msg91U = require('../library/msg91u');
 
-var TaskService = module.exports = {
+var TaskService = {
   send91umsg: function(prevTask) { // 前置任务完成则推送99U
     // 查找关联
     var findTaskFollows = function(callback) {
@@ -245,6 +245,38 @@ var TaskService = module.exports = {
       callback(err, results);
     });
   },
+  sendGenTaskMsg: function (taskDesc, user) { // 新建一条任务时，发送91u信息
+    console.log('--- 新建任务，发送91u信息 ---');
+    console.log('任务:' + taskDesc + ',人物：' + user.name);
+
+    var msg91u = new Msg91U(user.worker_num);
+    var msg = '有一条任务[' + taskDesc + ']落到了你的口袋，请查收';
+    msg91u.send(msg);
+  },
+  sendUpdateTaskMsg: function (task, destUser, operatorUser) {
+    console.log('--- 更新任务，发送91u信息 ---');
+
+    async.waterfall([
+      // 获取原先的用户
+      function (cb) {
+        UserModel
+          .find(task.user_id)
+          .then(function (srcUser) {
+            cb(null, srcUser);
+          });
+      }
+    ], function (err, srcUser) {
+      console.log('任务:' + task.desc + ',原作者：' + srcUser.name + ',现作者:' + destUser.name + ',操作者:' + operatorUser.name);
+
+      var originalUserMsg91u = new Msg91U(srcUser.worker_num);
+      var originalMsg = '您的任务[' + task.desc + ']被指定给了' + destUser.name + '，是不是好高兴嘞';
+      originalUserMsg91u.send(originalMsg);
+
+      var currentUserMsg91u = new Msg91U(destUser.worker_num);
+      var currentMsg = '天将降大任于斯人也。' + srcUser.name + '的故事[' + task.desc + ']由' + operatorUser.name + '指定给你了';
+      currentUserMsg91u.send(currentMsg);
+    });
+  },
   
   upload: function (csvId, info, callback) {
     var props = info.split(',');
@@ -327,3 +359,5 @@ var TaskService = module.exports = {
     });
   }
 };
+
+module.exports = TaskService;
