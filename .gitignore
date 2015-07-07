@@ -4,3 +4,4 @@
 /bin/*.out
 /doc/.svn
 /.idea
+/config/customer.js

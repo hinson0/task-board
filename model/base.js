@@ -1,5 +1,5 @@
 // 依赖
-var config = require('../config/db');
+var config = require('../config/global').get('mysql');
 var Sequelize = require('sequelize');
 
 // 导出

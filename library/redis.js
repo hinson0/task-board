@@ -6,7 +6,7 @@ var Redis = {
   create: function (config) {
     console.log('获取redis client实例');
 
-    config = config || require('../config/redis');
+    config = config || require('../config/global').get('redis');
 
     console.log('redis的配置信息为' + JSON.stringify(config));
 

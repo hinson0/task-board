@@ -11,6 +11,9 @@ var validator = require('express-validator');
 
 var app = express();
 
+// 设置生产环境
+app.set('env', 'development');
+
 // view engine setup
 app.set('views', path.join(__dirname, 'view'));
 app.set('view engine', 'ejs');
