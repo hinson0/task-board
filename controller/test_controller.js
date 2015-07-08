@@ -42,7 +42,6 @@ router.get('/redis', function (req, res) {
    res.end('redis');
 });
 
-
 router.get('/pro', function (req, res) {
   console.log(req.session);
   res.json({msg: '产品页面'});
@@ -96,6 +95,27 @@ router.get('/sess', function (req, res) {
   //  sess.views = 1
   //  res.end('welcome to the session demo. refresh!')
   //}
+});
+
+router.get('/promise', function (req, res) {
+  // 获取任务ID=100，然后更新字段desc='我要测试promise'，然后再读取ID=101，显示给用户
+  // SELECT * FROM task WHERE id = 100
+  // UPDATE task SET desc = '我要测试promise' WHERE id = 100
+  // SELECT * FROM task WHERE id = 101;
+
+  var TaskModel = require('../model/task_model');
+  TaskModel
+    .find(100)
+    .then(function (task) {
+        task
+          .update({
+            desc: '我要测试promise'
+          })
+          .then(function () {
+
+          });
+    });
+
 });
 
 module.exports = router;
