@@ -20,7 +20,7 @@ router.get('/', function (req, res) {
 
 function checkUserId(req, res, next) {
   UserModel
-    .find(req.query.user_id)
+    .findById(req.query.user_id)
     .then(function (user) {
       if (user) {
         req.user = user;

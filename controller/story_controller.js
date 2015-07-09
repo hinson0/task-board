@@ -39,7 +39,7 @@ router.get('/', function(req, res) {
 
 router.use('/:id', function (req, res, next) {
   StoryModel2
-    .find(req.params.id)
+    .findById(req.params.id)
     .then(function (story) {
       if (story === null) {
         res.status(400);
@@ -81,7 +81,7 @@ router.delete('/:id', function (req, res) {
 
 function checkVersionId(req, res, next) {
   VersionModel2
-    .find(req.param('version_id'))
+    .findById(req.param('version_id'))
     .then(function(version) {
       if (version === null) {
         res.status(400);
@@ -94,7 +94,7 @@ function checkVersionId(req, res, next) {
 }
 function checkLeader(req, res, next) { // 校验故事负责人是否存在
   UserModel2
-    .find(req.body.leader)
+    .findById(req.body.leader)
     .then(function(user) {
       if (user === null) {
         res.status(400);

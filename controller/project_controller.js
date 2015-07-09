@@ -61,7 +61,7 @@ router.post('/', function (req, res) {
 
 router.use('/:id', function (req, res, next) {
   ProjectModel
-    .find(req.params.id)
+    .findById(req.params.id)
     .then(function (project) {
       if (project === null) {
         res.status(404);
@@ -123,7 +123,7 @@ function checkName(req, res, next) { // 校验项目名称是否存在
 }
 function checkLeader(req, res, next) { // 校验负责人
   UserModel
-    .find(req.body.leader)
+    .findById(req.body.leader)
     .then(function (user) {
       if (user === null) {
         res.status(400);

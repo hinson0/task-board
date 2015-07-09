@@ -49,7 +49,7 @@ router.post('/', function(req, res) {
 
 router.use('/:id', function(req, res, next) {
   IterationModel
-    .find(req.params.id)
+    .findById(req.params.id)
     .then(function(iteration) {
       if (iteration === null) {
         res.status(400);
@@ -107,7 +107,7 @@ router.delete('/:id', function(req, res) {
 
 function checkVersionId(req, res, next) { // 检查版本ID是否存在
   VersionModel
-    .find(req.body.version_id)
+    .findById(req.body.version_id)
     .then(function(version) {
       if (version) {
         next();

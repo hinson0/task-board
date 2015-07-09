@@ -149,7 +149,7 @@ router.post('/reg_step2', function (req, res) {
 
 function checkUserId(req, res, next) {
   UserModel
-    .find(req.params.id)
+    .findById(req.params.id)
     .then(function (user) {
       if (user === null) {
         res.status(400);

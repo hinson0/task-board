@@ -320,7 +320,7 @@ router.post('/upload', function (req, res) {
 // 上传结果
 router.get('/upload/show/:id', function (req, res, next) {
   CsvModel
-    .find(req.params.id)
+    .findById(req.params.id)
     .then(function (csv) {
       if (csv === null) {
         res.status(400);
@@ -339,7 +339,7 @@ router.get('/upload/show/:id', function (req, res) {
 
 function checkUserId(req, res, next) {
   UserModel
-    .find(req.param('user_id'))
+    .findById(req.param('user_id'))
     .then(function (user) {
       if (user === null) {
         res.status(404);
@@ -352,7 +352,7 @@ function checkUserId(req, res, next) {
 }
 function checkTaskStausId(req, res, next) {
   TaskStatusModel
-    .find(req.body.task_status_id)
+    .findById(req.body.task_status_id)
     .then(function (taskStatus) {
       if (taskStatus === null) {
         res.status(404);
@@ -364,7 +364,7 @@ function checkTaskStausId(req, res, next) {
 }
 function checkVersionId(req, res, next) {
   VersionModel
-    .find(req.iteration.version_id)
+    .findById(req.iteration.version_id)
     .then(function (version) {
       if (version === null) {
         res.status(404);
@@ -377,7 +377,7 @@ function checkVersionId(req, res, next) {
 }
 function checkStoryId(req, res, next) {
   StoryModel
-    .find(req.param('story_id'))
+    .findById(req.param('story_id'))
     .then(function (story) {
       if (story === null) {
         res.status(404);
@@ -390,7 +390,7 @@ function checkStoryId(req, res, next) {
 }
 function checkIterationId(req, res, next) {
   IterationModel
-    .find(req.param('iteration_id'))
+    .findById(req.param('iteration_id'))
     .then(function (iteration) {
       if (iteration === null) {
         res.status(404);
@@ -408,7 +408,7 @@ function checkIterationId(req, res, next) {
 }
 function checkTaskId(req, res, next) {
   TaskModel
-    .find(req.params.id)
+    .findById(req.params.id)
     .then(function (task) {
       if (task === null) {
         res.status(404);

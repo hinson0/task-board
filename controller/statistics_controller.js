@@ -259,7 +259,7 @@ function isGetByIterationId(req) {
 
 function checkVersionId(req, res, next) { // 检查版本
   VersionModel
-    .find(req.query.version_id)
+    .findById(req.query.version_id)
     .then(function (version) {
       if (version === null) {
         res.status(400);
@@ -272,7 +272,7 @@ function checkVersionId(req, res, next) { // 检查版本
 }
 function checkIterationId(req, res, next) { // 检查迭代
   IterationModel
-    .find(req.query.iteration_id)
+    .findById(req.query.iteration_id)
     .then(function (iteration) {
       if (iteration === null) {
         res.status(400);
@@ -285,7 +285,7 @@ function checkIterationId(req, res, next) { // 检查迭代
 }
 function checkProjectId(req, res, next) {
   ProjectModel
-    .find(req.query.project_id)
+    .findById(req.query.project_id)
     .then(function (project) {
       if (project === null) {
         res.status(400);

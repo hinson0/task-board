@@ -11,7 +11,7 @@ var RouterService = require('../service/router_service');
 // 检查id
 router.use('/:id', function (req, res, next) {
   VersionModel
-    .find(req.params.id)
+    .findById(req.params.id)
     .then(function (version) {
       if (version === null) {
         res.status(404);
@@ -151,7 +151,7 @@ function checkPN(req, res, next) {
 }
 function checkProject(req, res, next) {
   ProjectModel
-    .find(req.body.project_id)
+    .findById(req.body.project_id)
     .then(function (project) {
       if (project === null) {
         res.status(404);

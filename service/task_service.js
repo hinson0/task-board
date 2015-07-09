@@ -35,7 +35,7 @@ var TaskService = {
       var tasks = [];
       taskFollows.forEach(function (taskFollow) {
         TaskModel
-          .find(taskFollow.task_id)
+          .findById(taskFollow.task_id)
           .then(function(task) {
             if (task !== null) {
               tasks.push(task);
@@ -52,7 +52,7 @@ var TaskService = {
         .then(function(prevTaskUser) {
           tasks.forEach(function(task) {
             UserModel
-              .find(task.user_id)
+              .findById(task.user_id)
               .then(function(user) {
                 var msg91u = new Msg91U(user.worker_num);
                 var msg = '前置任务【' + prevTask.desc + '】' + prevTaskUser.name + '已完成，你可以开始【' + task.desc + '】了，加油哟';
@@ -90,7 +90,7 @@ var TaskService = {
     var findUsers = function (TaskConcerneds, taskUser, callback) {
       async.each(TaskConcerneds, function (taskConcerned, cb) {
         UserModel
-          .find(taskConcerned.user_id)
+          .findById(taskConcerned.user_id)
           .then(function (user) {
             var msg91u = new Msg91U(user.worker_num);
             var msg = '您关注的任务【' + task.desc + '】' + taskUser.name + '已完成';
@@ -117,7 +117,7 @@ var TaskService = {
       // 故事
       function (taskUser, callback) {
         StoryModel
-          .find(task.story_id)
+          .findById(task.story_id)
           .then(function (story) {
             callback(null, taskUser, story);
           });
@@ -125,7 +125,7 @@ var TaskService = {
       // 负责人
       function (taskUser, story, callback) {
         UserModel
-          .find(story.leader)
+          .findById(story.leader)
           .then(function (user) {
             callback(null, taskUser, user);
           });
@@ -185,7 +185,7 @@ var TaskService = {
       function (taskUser, userIds, callback) {
         async.each(userIds, function (userId) {
           UserModel
-            .find(userId)
+            .findById(userId)
             .then(function (user) {
               var msg91u = new Msg91U(user.worker_num);
               var msg = '任务[' + task.desc + ']' + taskUser.name + '已完成。作为同一故事下的相关人员，你会收到此消息';
@@ -230,7 +230,7 @@ var TaskService = {
       function (tasks, callback) {
         async.each(tasks, function (task, cb) {
           UserModel
-            .find(task.user_id)
+            .findById(task.user_id)
             .then(function (user) {
               var msg91u = new Msg91U(user.worker_num);
               var msg = '任务[' + task.desc + ']，今天是截止到期，请及时完成。';
@@ -260,7 +260,7 @@ var TaskService = {
       // 获取原先的用户
       function (cb) {
         UserModel
-          .find(task.user_id)
+          .findById(task.user_id)
           .then(function (srcUser) {
             cb(null, srcUser);
           });
