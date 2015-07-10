@@ -49,7 +49,7 @@ app.use(session({
   saveUninitialized: true,
   cookie: {
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7天
-
+    domain: 'ishuwo.com'
   },
   //store: new MongoStore(require('./config/global').get('mongo'))
   store: new RedisStore({
