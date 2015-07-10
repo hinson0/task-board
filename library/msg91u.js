@@ -7,25 +7,50 @@ function Msg91U(workerId, config) {
 };
 
 Msg91U.prototype.send = function(msg) {
+  //var payload = JSON.stringify({
+  //  sender: {
+  //    appid: this.config.appid,
+  //    permcode: this.config.permcode,
+  //  },
+  //  msg: {
+  //    type: this.config.type,
+  //    msgtype: this.config.msgtype,
+  //    msgbody: msg,
+  //  },
+  //  receivers: [this.workerId]
+  //});
+  //var options = {
+  //  host: this.config.host,
+  //  port: this.config.port,
+  //  method: 'POST',
+  //  path: '/appmsg',
+  //};
+  //var client = http.request(options);
+  //client.write(payload);
+  //client.end();
+
   var payload = JSON.stringify({
-    sender: {
-      appid: this.config.appid,
-      permcode: this.config.permcode,
+    service: 'service_ndim',
+    data: {
+      method: 'send',
+      params: [
+        msg, [this.workerId]
+      ]
     },
-    msg: {
-      type: this.config.type,
-      msgtype: this.config.msgtype,
-      msgbody: msg,
-    },
-    receivers: [this.workerId]
+    'pack_type': 'raw'
   });
   var options = {
-    host: this.config.host,
-    port: this.config.port,
+    //host: ' simulateserviceapi.xxjia.cn',
+    host: 'yzb.service.192.168.94.26.xip.io',
     method: 'POST',
-    path: '/appmsg',
+    path: '/service/call'
   };
-  var client = http.request(options);
+  var client = http.request(options, function (res) {
+    res.setEncoding('utf8');
+    res.on('data', function (data) {
+      console.log(data);
+    });
+  });
   client.write(payload);
   client.end();
 };

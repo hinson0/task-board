@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 var multer = require('multer');
 var session = require('express-session');
 var RedisStore = require('connect-redis')(session);
+//var MongoStore = require('connect-mongo')(session);
 var validator = require('express-validator');
 
 var app = express();
@@ -47,8 +48,10 @@ app.use(session({
   resave: false, // 如果为true，则每次都会强制将session数据保存起来；在一个客户端并发多次请求时，如果第一次请求将session发生变化，后续的请求将会无效了
   saveUninitialized: true,
   cookie: {
-    maxAge: 7 * 24 * 60 * 60 * 1000 // 7天
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7天
+
   },
+  //store: new MongoStore(require('./config/global').get('mongo'))
   store: new RedisStore({
     client: require('./library/redis').create()
   })

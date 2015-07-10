@@ -5,6 +5,7 @@ var http = require('http');
 var UserService = {
   checkSession: function (req, res, next) {
     // session的用户id是否存在
+    console.log(req.session.id);
     if (!req.session.user_id) {
       res.status(403);
       res.json({msg: '请登陆后访问'});
