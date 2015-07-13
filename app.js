@@ -5,9 +5,6 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var multer = require('multer');
-// var session = require('express-session');
-// var RedisStore = require('connect-redis')(session);
-//var MongoStore = require('connect-mongo')(session);
 var validator = require('express-validator');
 
 var app = express();
@@ -43,15 +40,6 @@ app.use(validator({
 
 // cookie & session
 app.use(cookieParser());
-// app.use(session({
-//   secret: 'flzt',
-//   resave: false, // 如果为true，则每次都会强制将session数据保存起来；在一个客户端并发多次请求时，如果第一次请求将session发生变化，后续的请求将会无效了
-//   saveUninitialized: true,
-//   //store: new MongoStore(require('./config/global').get('mongo'))
-//   store: new RedisStore({
-//     client: require('./library/redis').create()
-//   })
-// }));
 
 // 文件上传
 app.use(require('stylus').middleware(path.join(__dirname, 'public')));
