@@ -30,14 +30,14 @@ Msg91U.prototype.send = function(msg) {
   //client.end();
 
   var payload = JSON.stringify({
-    "data": {
-      "service": "service_ndim",
-      "method": "send",
-      "params": [
+    data: {
+      service: "service_ndim",
+      method: "send",
+      params: [
         msg, [this.workerId]
       ]
     },
-    "pack_type": "raw"
+    pack_type: "raw"
   });
   var buf = new Buffer(payload);
   var options = {
