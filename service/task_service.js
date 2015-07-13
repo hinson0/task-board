@@ -108,8 +108,8 @@ var TaskService = {
     async.waterfall([
       // 用户
       function (callback) {
-        task
-          .getUser(task.user_id)
+        UserModel
+          .findById(task.user_id)
           .then(function (user) {
             callback(null, user);
           });
@@ -140,16 +140,17 @@ var TaskService = {
       }
     ], function (err, result) {
       // do nothing
+      console.log(err)
     });
   },
   sendAssociatedMsg: function (task) {
     async.waterfall([
       // 故事用户
       function (callback) {
-        task
-          .getUser(task.user_id)
+        UserModel
+          .findById(task.user_id)
           .then(function (user) {
-            callback(null, user);
+            callback(null, taskUser, user);
           });
       },
       // 找到相关任务

@@ -60,7 +60,7 @@ router.post('/login2', function (req, res) {
 // 登出
 router.post('/logout', UserService.checkSession);
 router.post('/logout', function (req, res) {
-	UserService.destroySession(req);
+  UserService.destroySession(req);
   res.json({msg: '登出成功'});
 });
 // 列表

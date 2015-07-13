@@ -226,8 +226,7 @@ router.put('/:id/status', function (req, res, next) {
   req.task
     .drag(req.body.task_status_id)
     .then(function (task) {
-			console.log(task);
-      // res.json({id: task.id});
+      res.json({id: task.id});
     });
   next();
 });
@@ -237,11 +236,11 @@ router.put('/:id/status', function (req) { // 前置任务完成则推送99U
     return;
   }
 
-  // 发送
-  TaskService.send91umsg(req.task); // 发送以该任务为前置任务的人
-  TaskService.sendConcernedMsg(req.task); // 发送关注人
-  TaskService.sendLeaderMsg(req.task); // 发送故事负责人
-  TaskService.sendAssociatedMsg(req.task);
+  // 发送 @todo 考虑改造成email推送
+  //TaskService.send91umsg(req.task); // 发送以该任务为前置任务的人
+  //TaskService.sendConcernedMsg(req.task); // 发送关注人
+  //TaskService.sendLeaderMsg(req.task); // 发送故事负责人
+  //TaskService.sendAssociatedMsg(req.task);
 });
 
 // 任务deadline信息通知
