@@ -50,7 +50,7 @@ router.post('/login2', function (req, res) {
       res.json({msg: '密码错误'});
       return;
     }
-		UserService.setSession(user, req);
+    UserService.setSession(user, req);
     // req.session.user_id = user.id;
     // req.session.user = user;
     res.json({id: user.id, sid: req.session.id});
