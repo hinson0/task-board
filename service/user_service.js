@@ -21,7 +21,6 @@ var UserService = {
     redis.set(sid, stringify);
     req.session = session;
     req.user = user;
-    console.log(session);
   },
   destroySession: function (req) {
     redis.expire(req.session.id, 0);
