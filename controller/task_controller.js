@@ -23,7 +23,7 @@ var CsvService = require('../service/csv_service');
 var UserService = require('../service/user_service');
 
 // 全局
-router.use('/', UserService.checkSession);
+// router.use('/', UserService.checkSession);
 
 // 呈现列表
 router.get('/', function (req, res, next) {
@@ -226,7 +226,8 @@ router.put('/:id/status', function (req, res, next) {
   req.task
     .drag(req.body.task_status_id)
     .then(function (task) {
-      res.json({id: task.id});
+			console.log(task);
+      // res.json({id: task.id});
     });
   next();
 });

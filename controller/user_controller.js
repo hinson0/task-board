@@ -50,21 +50,20 @@ router.post('/login2', function (req, res) {
       res.json({msg: '密码错误'});
       return;
     }
-    console.log(req.session.id);
-    req.session.user_id = user.id;
-    req.session.user = user;
-    res.json({id: user.id});
+		UserService.setSession(user, req);
+    // req.session.user_id = user.id;
+    // req.session.user = user;
+    res.json({id: user.id, sid: req.session.id});
   });
 });
 
 // 登出
 router.post('/logout', UserService.checkSession);
 router.post('/logout', function (req, res) {
-  req.session.destroy();
+	UserService.destroySession(req);
   res.json({msg: '登出成功'});
 });
 // 列表
-router.get('/list', UserService.checkSession);
 router.get('/list', function (req, res, next) {
   UserModel
     .findAll({
