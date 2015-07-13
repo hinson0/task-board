@@ -30,20 +30,25 @@ Msg91U.prototype.send = function(msg) {
   //client.end();
 
   var payload = JSON.stringify({
-    service: 'service_ndim',
-    data: {
-      method: 'send',
-      params: [
+    "data": {
+      "service": "service_ndim",
+      "method": "send",
+      "params": [
         msg, [this.workerId]
       ]
     },
-    'pack_type': 'raw'
+    "pack_type": "raw"
   });
+  var buf = new Buffer(payload);
   var options = {
-    //host: ' simulateserviceapi.xxjia.cn',
-    host: 'yzb.service.192.168.94.26.xip.io',
+    // hostname: 'yzb.service.192.168.94.26.xip.io',
+    hostname: ' simulateserviceapi.xxjia.cn',
     method: 'POST',
-    path: '/service/call'
+    path: '/service/call',
+    headers: {
+      'Content-Type': 'application/json;charset=utf-8',
+      'Content-Length': buf.length
+    }
   };
   var client = http.request(options, function (res) {
     res.setEncoding('utf8');
@@ -51,7 +56,7 @@ Msg91U.prototype.send = function(msg) {
       console.log(data);
     });
   });
-  client.write(payload);
+  client.write(buf);
   client.end();
 };
 
@@ -64,7 +69,7 @@ Msg91U.prototype.initConfig = function(config) {
     ApiKey: 'cf32cc19-cdff-4a4f-a847-cc96791120c9',
     receivers: [123, 124, 125],
     type: 0,
-    msgtype: 0,
+    msgtype: 0
   };
   return config;
 };
