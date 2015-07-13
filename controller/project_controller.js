@@ -83,7 +83,7 @@ router.put('/:id', function (req, res, next) {
   }
 });
 router.put('/:id', function (req, res) {
-  ProjectModel
+  req.project
     .update(req.body)
     .then(function (project) {
       res.json({id: project.id});
