@@ -25,8 +25,8 @@ config.set('redis', {
 
 // 合并配置，customer中没有定义的就使用global的配置，有的则覆盖；类似PHP的array_merge效果
 var fs = require('fs');
-if (fs.existsSync(__dirname + '/customer.js')) {
-  var customer = require('./customer');
+if (fs.existsSync(__dirname + '/local.js')) {
+  var customer = require('./local');
   customer.forEach(function (value, key) {
     config.set(key, value);
   });
