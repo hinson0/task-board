@@ -11,6 +11,4 @@ this is only server codes,and the pcweb codes are [here](https://github.com/hins
 
 u can take a look at the effect through this [website](http://kanban.ishuwo.com "website")
 
-
-
-
+the version of node is v0.12 or larger,because of i use some es6 features in codes
