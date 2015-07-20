@@ -7,7 +7,7 @@ on task board:
 - there are well defined roles for a scrum master and a product owner
 
 
-this is only server codes,and the pcweb codes are [here](http://2222 "here")
+this is only server codes,and the pcweb codes are [here](https://github.com/hinson0/task-board-pcweb "here")
 
 u can take a look at the effect through this [website](http://kanban.ishuwo.com "website")
 
