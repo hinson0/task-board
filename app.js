@@ -12,10 +12,6 @@ var app = express();
 // 设置环境
 app.set('env', 'development');
 
-// view engine setup
-app.set('views', path.join(__dirname, 'view'));
-app.set('view engine', 'ejs');
-
 // uncomment after placing your favicon in /public
 //app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(logger('dev'));
@@ -38,7 +34,7 @@ app.use(validator({
   }
 }));
 
-// cookie & session
+// cookie
 app.use(cookieParser());
 
 // 文件上传
