@@ -1,10 +1,2 @@
-=======
-# 敏捷开发看板项目
-- 基于express开发
-- 使用的主要的modules包含如下
-	- moment
-	- sequelize
-	- mysql
-	- async
-
-> 敏捷开发中的三大要素：故事，责任人，看板工具；本项目主要将看板工具有真正的小看板移植到web端，实时反应项目进度，结合了公司的91u聊天软件，将完成任务的信息推送的相关人，以便及时响应。
+# task-board
+this is a project for scrum.In scrum we use task board to show the process of a project.now i took task board to pc browser using express web framework
