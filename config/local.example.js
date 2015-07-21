@@ -5,9 +5,9 @@ var config = new Map();
 config.set('mysql', {
   host: '127.0.0.1',
   port: 3306,
-  user: 'momo_space',
-  password: 'ndpassw0rd',
-  database: 'hair_board_dev'
+  user: '', // enter username
+  password: '', // input password
+  database: '' // input database
 });
 
 // redis
