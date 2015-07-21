@@ -9,6 +9,6 @@ on task board:
 
 this is only server codes,and the pcweb codes are [here](https://github.com/hinson0/task-board-pcweb "here")
 
-u can take a look at the effect through this [website](http://kanban.ishuwo.com "website")
+u can take a look at the effect through this [website](http://kanban.ishuwo.com "website"),user:18607946001,password:123456
 
 the version of node is v0.12 or larger,because of i use some es6 features in codes
