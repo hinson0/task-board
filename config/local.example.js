@@ -1,4 +1,6 @@
-// 自定义配置
+// if u want to use this file, u must rename this file to local.js
+
+// local config
 var config = new Map();
 
 // mysql

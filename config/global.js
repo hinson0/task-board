@@ -1,4 +1,4 @@
-// 全局配置
+// global config
 var config = new Map();
 
 // mysql
@@ -16,14 +16,9 @@ config.set('redis', {
   port: 6379
 });
 
-//// mongo
-//config.set('redis', {
-//  host: '127.0.0.1',
-//  port: 27017
-//});
-
-
-// 合并配置，local中没有定义的就使用global的配置，有的则覆盖；类似PHP的array_merge效果
+// merge config from local.js
+// if local.js is existed and local.js defines the configuration is used to local's, otherwise use global's
+// like array_merge function in php
 var fs = require('fs');
 if (fs.existsSync(__dirname + '/local.js')) {
   var customer = require('./local');
