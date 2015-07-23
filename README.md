@@ -43,7 +43,7 @@ var fs = require('fs');
 if (fs.existsSync(__dirname + '/local.js')) {
   var customer = require('./local');
   customer.forEach(function (value, key) {
-config.set(key, value);
+	config.set(key, value);
   });
 }
 
