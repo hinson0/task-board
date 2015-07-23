@@ -110,4 +110,5 @@ by the way this is only server codes.u can get pcweb codes from [here](https://g
 - send a tip by email when task is updated, including 'ToDo' drag to 'Doing', 'Doing' drag to 'Done' just like 'Task[some task description...] has been completed by Lucy。You will receive this tip because you are the author of task.'
 
 
-
+# More #
+- u can get more infomation from [oschina.net](http://www.oschina.net/p/task-board "oschina.net"), [cnodejs.org](https://cnodejs.org/topic/55a3b5623ecc81b621bba776 "cnodejs.org")
