@@ -3,7 +3,7 @@ this is a project for task board in scrum.now i code it to pc browser powered by
 
 on task board:
 - we use task board to show the process of a project
-- tasks and user stories are tracked on it,there are three columns,such as 'ToDdo','Doing','Doned'
+- tasks and user stories are tracked on it,there are three columns,such as 'ToDo','Doing','Doned'
 - there are well defined roles for a scrum master and a product owner
 
 
@@ -13,8 +13,9 @@ u can take a look at the effect through this [website](http://kanban.ishuwo.com 
 
 the version of node is v0.12 or larger,because of i use some es6 features in codes
 
-# Start #
-first u need to configure globa.js file in config floder, as follow:
+# Configure #
+## global config ##
+u need to configure globa.js file in config floder, as follows:
 
 ```
 
@@ -36,6 +37,9 @@ config.set('redis', {
   port: 6379
 });
 
+// mongodb
+// ...
+
 // merge config from local.js
 // if local.js is existed and local.js defines the configuration is used to local's, otherwise use global's
 // like array_merge function in php
@@ -51,12 +55,13 @@ module.exports = config;
 
 ```
 
+u need to fill options about mysql,inculding user,password
 
-u need to input something on mysql options, include user,password,database
+and also your server should be installed redis service, it used to save session
 
-and also, your server should be installed redis service, it used to save session
+## local config ##
 
-u can rename local.example.js file to local.js.That way u can easily switch your configuration environment.u can use loca.js file in dev environment,and use global.js file in production environment
+u can rename local.example.js file to local.js.That way u can easily switch your coding environment.u can use loca.js file in development environment,and use global.js file in production environment
 
 
 ```
@@ -81,6 +86,28 @@ config.set('redis', {
   port: 6380
 });
 
+// mongodb
+// ...
+
 module.exports = config;
 
 ```
+
+# Start #
+## sql ##
+u can get sql file in config floder
+
+## deploy ##
+1. run 'npm install' at the command line in project folder.if u come from china, u can run 'cnpm install' because cnpm is faster.
+2. start mysql service
+3. start redis service
+
+by the way this is only server codes.u can get pcweb codes from [here](https://github.com/hinson0/task-board-pcweb "here")
+
+# Todo #
+- webapp
+- bug tracking
+- send a tip by email when task is updated, including 'ToDo' drag to 'Doing', 'Doing' drag to 'Done' just like 'Task[some task description...] has been completed by Lucy。You will receive this tip because you are the author of task.'
+
+
+
