@@ -40,9 +40,9 @@ config.set('redis', {
 // email
 // tips: don't use qq mail
 config.set('email', {
-  service: '126',
-  username: 'xxxx@126.com',
-  password: 'xxxxx'
+  service: '126', // input email service, supproted list: https://github.com/andris9/nodemailer-wellknown#supported-services
+  username: 'xxxx@126.com', // input your email
+  password: 'xxxxx' // input password
 });
 
 // merge config from local.js
