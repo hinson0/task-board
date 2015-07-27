@@ -9,8 +9,12 @@ var validator = require('express-validator');
 
 var app = express();
 
-// 设置环境
+// env
 app.set('env', 'development');
+
+// view engine
+app.set('views', path.join(__dirname, 'view'));
+app.set('view engine', 'ejs');
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(__dirname + '/public/favicon.ico'));
@@ -18,14 +22,14 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 
-// 数据校验
+// data validator
 app.use(validator({
-  customValidators: {
-    isArray: function(value) { // 判断是否为数组
+  customValidators: { // custom functions
+    isArray: function(value) {
       return Array.isArray(value);
     }
   },
-  errorFormatter: function (param, msg, value) { // 格式化错误输出结果
+  errorFormatter: function (param, msg, value) { // error formatter
     return {
       param: param,
       msg: msg,
@@ -37,14 +41,14 @@ app.use(validator({
 // cookie
 app.use(cookieParser());
 
-// 文件上传
+// file uploader
 app.use(require('stylus').middleware(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(multer({
   dest: '/tmp/board'
 }));
 
-// 跨域
+// jsonp
 app.use(function (req, res, next) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
@@ -52,7 +56,7 @@ app.use(function (req, res, next) {
   next();
 });
 
-// 路由
+// router / controller
 var SiteController = require('./controller/index_controller');
 var UserController = require('./controller/user_controller');
 var ProjectController = require('./controller/project_controller');
