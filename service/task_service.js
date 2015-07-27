@@ -13,6 +13,7 @@ var IterationModel = require('../model/iteration_model');
 var Msg91uModel = require('../model/msg91u_model');
 
 var Msg91U = require('../library/msg91u');
+var Mail = require('../library/mail');
 
 var TaskService = {
   send91umsg: function(prevTask) { // 前置任务完成则推送99U
@@ -92,10 +93,11 @@ var TaskService = {
         UserModel
           .findById(taskConcerned.user_id)
           .then(function (user) {
-            var msg91u = new Msg91U(user.worker_num);
+            console.log('user email is ' + user.email);
+            var mail = new Mail(user.email);
             var msg = '您关注的任务【' + task.desc + '】' + taskUser.name + '已完成';
+            mail.send(msg);
             Msg91uModel.create({content: msg, 'receiver': user.id});
-            msg91u.send(msg);
           });
         cb(null);
       });

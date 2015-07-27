@@ -20,18 +20,19 @@ var UserService = {
     var stringify = JSON.stringify(session);
     redis.set(sid, stringify);
     req.session = session;
-    req.user = user;
+    req.user = session.user;
   },
   destroySession: function (req) {
     redis.expire(req.session.id, 0);
   },
   checkSession: function (req, res, next) {
+    var self = this;
     async.waterfall([
       // get session id
       function (cb) {
         var sid = req.query.sid;
         if (!sid) {
-          cb('请登录后访问');
+          cb('please login first');
         } else {
           cb(null, sid);
         }
@@ -43,7 +44,7 @@ var UserService = {
             cb(null, session);
           } else {
             console.log('session empty, sid ' + sid);
-            cb('请登录后访问');
+            cb('please login first');
           }
         });
       },
@@ -52,7 +53,7 @@ var UserService = {
         var parsed = JSON.parse(session);
         if (parsed.expired <= moment().unix()) {
           console.log('session expired, sid ' + session.id);
-          cb('请重新登录后访问');
+          cb('please re-login');
         } else {
           cb(null, parsed);
         }
@@ -63,11 +64,13 @@ var UserService = {
         res.json({msg: err});
       } else {
         console.log('userid ' + session.user_id + ' session check success');
+        req.session = session;
+        req.user = session.user;
         next();
       }
     });
   },
-  isMe: function (req, userId) { // 是否为自己
+  isMe: function (req, userId) { // is me
     var me = req.session.user_id;
     return parseInt(me) === parseInt(userId);
   }

@@ -16,6 +16,14 @@ config.set('redis', {
   port: 6379
 });
 
+// email
+// tips: don't use qq mail
+config.set('email', {
+  service: '126',
+  username: 'xxxx@126.com',
+  password: 'xxxxx'
+});
+
 // merge config from local.js
 // if local.js is existed and local.js defines the configuration is used to local's, otherwise use global's
 // like array_merge function in php
