@@ -26,7 +26,7 @@ var config = new Map();
 config.set('mysql', {
   host: '127.0.0.1',
   port: 3306,
-  user: '', // input user
+  user: '', // enter username
   password: '', // input password
   database: '' // input database
 });
@@ -37,8 +37,13 @@ config.set('redis', {
   port: 6379
 });
 
-// mongodb
-// ...
+// email
+// tips: don't use qq mail
+config.set('email', {
+  service: '126',
+  username: 'xxxx@126.com',
+  password: 'xxxxx'
+});
 
 // merge config from local.js
 // if local.js is existed and local.js defines the configuration is used to local's, otherwise use global's
@@ -47,7 +52,7 @@ var fs = require('fs');
 if (fs.existsSync(__dirname + '/local.js')) {
   var customer = require('./local');
   customer.forEach(function (value, key) {
-	config.set(key, value);
+    config.set(key, value);
   });
 }
 
