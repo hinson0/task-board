@@ -13,8 +13,20 @@ u can take a look at the effect through this [website](http://kanban.ishuwo.com 
 
 the version of node is v0.12 or larger,because of i use some es6 features in codes
 
-# Configure #
-## global config ##
+
+# Table of Contents #
+- [Start](#Start)
+	- [Configure](#Configure) 
+	- [Deploy](#Deploy)
+- [Introduction](#Introduction)
+	- [Send Email](#sendemail)  
+- [More](#More)
+
+# Start
+
+## Configure
+
+### global config
 u need to configure globa.js file in config floder, as follows:
 
 ```
@@ -64,7 +76,7 @@ u need to fill options about mysql,inculding user,password
 
 and also your server should be installed redis service, it used to save session
 
-## local config ##
+### local config
 
 u can rename local.example.js file to local.js.That way u can easily switch your coding environment.u can use loca.js file in development environment,and use global.js file in production environment
 
@@ -98,16 +110,29 @@ module.exports = config;
 
 ```
 
-# Start #
-## sql ##
+# Deploy
+
+## SQL
 u can get sql file in config floder
 
-## deploy ##
+## Initinal
 1. run 'npm install' at the command line in project folder.if u come from china, u can run 'cnpm install' because cnpm is faster.
 2. start mysql service
 3. start redis service
 
 by the way this is only server codes.u can get pcweb codes from [here](https://github.com/hinson0/task-board-pcweb "here")
 
-# More #
+
+# Introduction
+
+## Send Email
+you will receive an email when triggered the following behaviors:
+
+- when a task has been completed, and you are the author of prepositive task
+- when a task has been completed, and you has focused on this task
+- when a task has been completed, and you are the leader of this task
+- when a task is assigned to anthor author, the orignal author and the target author are both receive an email
+
+# More
 - u can get more information from [oschina.net](http://www.oschina.net/p/task-board "oschina.net"), [cnodejs.org](https://cnodejs.org/topic/55a3b5623ecc81b621bba776 "cnodejs.org")
+
