@@ -108,11 +108,6 @@ router.post('/', function (req, res, next) { // 添加任务
     });
 
 });
-router.post('/', function (req, res, next) { // 通知用户
-  if (!UserService.isMe(req, req.body.user_id)) {
-    TaskService.sendGenTaskMsg(req.body.desc, req.user);
-  }
-});
 router.post('/', function (req, res) { // 前置任务添加
   async.each(req.prevTaskIds, function (prevTaskId, callback) {
     TaskFollowModel
@@ -136,9 +131,9 @@ router.put('/:id', checkVersionId);
 router.put('/:id', checkUserId);
 router.put('/:id', checkStoryId);
 router.put('/:id', checkPrevTaskIds);
-router.put('/:id', function (req, res, next) { // 给故事原作者，新作者发送信息推送
+router.put('/:id', function (req, res, next) {
   if (!UserService.isMe(req, req.body.user_id)) {
-    TaskService.sendUpdateTaskMsg(req.task, req.user, req.session.user);
+    TaskService.sendMsgWhenAuthorChanged(req.task, req.user, req.session.user);
   }
   next();
 });
@@ -236,11 +231,10 @@ router.put('/:id/status', function (req) { // 前置任务完成则推送99U
     return;
   }
 
-  // 发送 @todo 考虑改造成email推送
-  //TaskService.send91umsg(req.task); // 发送以该任务为前置任务的人
-  TaskService.sendConcernedMsg(req.task); // 发送关注人
-  //TaskService.sendLeaderMsg(req.task); // 发送故事负责人
-  //TaskService.sendAssociatedMsg(req.task);
+  // send msg
+  TaskService.sendPreTaskMsg(req.task);
+  TaskService.sendConcernedMsg(req.task);
+  TaskService.sendLeaderMsg(req.task);
 });
 
 // 任务deadline信息通知

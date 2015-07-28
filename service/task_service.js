@@ -16,8 +16,8 @@ var Msg91U = require('../library/msg91u');
 var Mail = require('../library/mail');
 
 var TaskService = {
-  send91umsg: function(prevTask) { // 前置任务完成则推送99U
-    // 查找关联
+  sendPreTaskMsg: function(prevTask) { // send msg if you are the author of prepositive task
+    // find task follows
     var findTaskFollows = function(callback) {
       TaskFollowModel
         .findAll({
@@ -31,7 +31,7 @@ var TaskService = {
         });
     };
 
-    // 查找任务
+    // find tasks
     var findTasks = function(taskFollows, callback) {
       var tasks = [];
       taskFollows.forEach(function (taskFollow) {
@@ -46,7 +46,7 @@ var TaskService = {
       callback(null, tasks);
     };
     
-    // 查找用户
+    // find users
     var findUsers = function(tasks, callback) {
       prevTask
         .getUser()
@@ -55,10 +55,9 @@ var TaskService = {
             UserModel
               .findById(task.user_id)
               .then(function(user) {
-                var msg91u = new Msg91U(user.worker_num);
-                var msg = '前置任务【' + prevTask.desc + '】' + prevTaskUser.name + '已完成，你可以开始【' + task.desc + '】了，加油哟';
-                Msg91uModel.create({content: msg, 'receiver': user.id});
-                msg91u.send(msg);
+                var mail = new Mail(user.email);
+                var msg = 'Prepositive task [' + prevTask.desc + '] has been completed by ' + prevTaskUser.name + '.Now you can start task[' + task.desc + '].';
+                mail.send(msg);
               });
           });
         });
@@ -67,7 +66,7 @@ var TaskService = {
     
     async.waterfall([findTaskFollows, findTasks, findUsers]);
   },
-  sendConcernedMsg: function (task) {
+  sendConcernedMsg: function (task) { // send msg if you focus on this task
     var findTaskUser = function (callback) {
       task
         .getUser()
@@ -93,11 +92,9 @@ var TaskService = {
         UserModel
           .findById(taskConcerned.user_id)
           .then(function (user) {
-            console.log('user email is ' + user.email);
             var mail = new Mail(user.email);
-            var msg = '您关注的任务【' + task.desc + '】' + taskUser.name + '已完成';
+            var msg = 'Task [' + task.desc + '] that you foucs on has been completed by ' + taskUser.name;
             mail.send(msg);
-            Msg91uModel.create({content: msg, 'receiver': user.id});
           });
         cb(null);
       });
@@ -106,9 +103,9 @@ var TaskService = {
     
     async.waterfall([findTaskUser, findTaskConcerned, findUsers]);
   },
-  sendLeaderMsg: function (task) { // 发送负责人
+  sendLeaderMsg: function (task) { // send msg if you are a leader of this task
     async.waterfall([
-      // 用户
+      // user
       function (callback) {
         UserModel
           .findById(task.user_id)
@@ -116,7 +113,7 @@ var TaskService = {
             callback(null, user);
           });
       },
-      // 故事
+      // story
       function (taskUser, callback) {
         StoryModel
           .findById(task.story_id)
@@ -124,7 +121,7 @@ var TaskService = {
             callback(null, taskUser, story);
           });
       },
-      // 负责人
+      // find leader
       function (taskUser, story, callback) {
         UserModel
           .findById(story.leader)
@@ -132,12 +129,12 @@ var TaskService = {
             callback(null, taskUser, user);
           });
       },
-      // 推送
+      // send msg
       function (taskUser, user, callback) {
-        var msg91u = new Msg91U(user.worker_num);
-        var msg = '任务[' + task.desc + ']' + taskUser.name + '已完成。作为故事负责人，你会收到此消息';
-        Msg91uModel.create({content: msg, 'receiver': user.id});
-        msg91u.send(msg);
+        var mail = new Mail(user.email);
+        var msg = 'Task [' + task.desc + '] has been completed by ' + taskUser.name + '.You will receive this msg because you are a leader of this task';
+        mail.send(msg);
+
         callback(null);
       }
     ], function (err, result) {
@@ -145,68 +142,7 @@ var TaskService = {
       console.log(err)
     });
   },
-  sendAssociatedMsg: function (task) {
-    async.waterfall([
-      // 故事用户
-      function (callback) {
-        UserModel
-          .findById(task.user_id)
-          .then(function (user) {
-            callback(null, taskUser, user);
-          });
-      },
-      // 找到相关任务
-      function (taskUser, callback) {
-        TaskModel
-          .findAll({
-            where: {
-              project_id: task.project_id,
-              version_id: task.version_id,
-              story_id: task.story_id
-            }
-          })
-          .then(function (tasks) {
-            if (tasks) {
-              callback(null, taskUser, tasks);
-            } else {
-              callback('empty associated task');
-            }
-          });
-      },
-      // 过滤用户
-      function (taskUser, tasks, callback) {
-        var userIds = [];
-        tasks.forEach(function (task) {
-          if (_.indexOf(userIds, task.user_id) !== -1) {
-            return;
-          }
-          userIds.push(task.user_id);
-        });
-        callback(null, taskUser, userIds);
-      },
-      // 发送
-      function (taskUser, userIds, callback) {
-        async.each(userIds, function (userId) {
-          UserModel
-            .findById(userId)
-            .then(function (user) {
-              var msg91u = new Msg91U(user.worker_num);
-              var msg = '任务[' + task.desc + ']' + taskUser.name + '已完成。作为同一故事下的相关人员，你会收到此消息';
-              Msg91uModel.create({content: msg, 'receiver': user.id});
-              msg91u.send(msg);
-            });
-          callback(null);
-        }, function (err) {
-          callback(null);
-        });
-      }
-    ], function (err, result) {
-      if (err) {
-        logger.log('91umsg', err);
-      }
-    });
-  },
-  sendDeadlineMsg: function (callback) {
+  sendDeadlineMsg: function (callback) { // send msg if today is the deadline to complete
     var year = moment().get('year');
     var month = moment().get('month') + 1;
     var date = moment().get('date');
@@ -214,7 +150,7 @@ var TaskService = {
     var todayEnd = moment(todayStart).add(1, 'days');
 
     async.waterfall([
-      // 获取任务
+      // find tasks
       function (callback) {
         TaskModel
           .findAll({
@@ -229,15 +165,15 @@ var TaskService = {
             callback(null, tasks);
           });
       },
-      // 获取用户
+      // find users
       function (tasks, callback) {
         async.each(tasks, function (task, cb) {
           UserModel
             .findById(task.user_id)
             .then(function (user) {
-              var msg91u = new Msg91U(user.worker_num);
-              var msg = '任务[' + task.desc + ']，今天是截止到期，请及时完成。';
-              msg91u.send(msg);
+              var mail = new Mail(user.email);
+              var msg = 'Please complete the task[' + task.desc + '], because today is the deadline';
+              mail.send(msg);
             });
           cb(null);
         }, function (err) {
@@ -248,36 +184,26 @@ var TaskService = {
       callback(err, results);
     });
   },
-  sendGenTaskMsg: function (taskDesc, user) { // 新建一条任务时，发送91u信息
-    console.log('--- 新建任务，发送91u信息 ---');
-    console.log('任务:' + taskDesc + ',人物：' + user.name);
-
-    var msg91u = new Msg91U(user.worker_num);
-    var msg = '有一条任务[' + taskDesc + ']落到了你的口袋，请查收';
-    msg91u.send(msg);
-  },
-  sendUpdateTaskMsg: function (task, destUser, operatorUser) {
-    console.log('--- 更新任务，发送91u信息 ---');
-
+  sendMsgWhenAuthorChanged: function (task, currentUser, operatorUser) { // send msg if the anthor of a task is changed
     async.waterfall([
-      // 获取原先的用户
+      // find original anthor
       function (cb) {
         UserModel
           .findById(task.user_id)
-          .then(function (srcUser) {
-            cb(null, srcUser);
+          .then(function (orginalUser) {
+            cb(null, orginalUser);
           });
       }
-    ], function (err, srcUser) {
-      console.log('任务:' + task.desc + ',原作者：' + srcUser.name + ',现作者:' + destUser.name + ',操作者:' + operatorUser.name);
+    ], function (err, originalUser) {
+      console.log('task:' + task.desc + ',original author：' + originalUser.name + ', current author:' + currentUser.name + ', operator:' + operatorUser.name);
 
-      var originalUserMsg91u = new Msg91U(srcUser.worker_num);
-      var originalMsg = '您的任务[' + task.desc + ']被指定给了' + destUser.name + '，是不是好高兴嘞';
-      originalUserMsg91u.send(originalMsg);
+      var originalUserMail = new Mail(originalUser.email);
+      var originalMsg = 'Your task[' + task.desc + '] is assigned to ' + currentUser.name;
+      originalUserMail.send(originalMsg);
 
-      var currentUserMsg91u = new Msg91U(destUser.worker_num);
-      var currentMsg = '天将降大任于斯人也。' + srcUser.name + '的故事[' + task.desc + ']由' + operatorUser.name + '指定给你了';
-      currentUserMsg91u.send(currentMsg);
+      var currentUserMail = new Mail(currentUser.email);;
+      var currentMsg = 'The task[' + task.desc + '] belonged to ' + originalUser.name + ' has assigned to you operated by ' + operatorUser.name;
+      currentUserMail.send(currentMsg);
     });
   },
   
