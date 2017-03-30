@@ -65,8 +65,8 @@ router.post('/logout', function (req, res) {
 router.get('/list', function (req, res, next) {
   UserModel
     .findAll({
-      offset: req.query.offset || 0,
-      limit: req.query.size || 10
+      offset: parseInt(req.query.offset) || 0,
+      limit: parseInt(req.query.size) || 10
     })
     .then(function (users) {
       res.json(users);

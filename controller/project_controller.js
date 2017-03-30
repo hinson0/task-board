@@ -16,8 +16,8 @@ router.get('/', function (req, res) {
       where: {
         status: ProjectModel.statusOnline
       },
-      offset: req.query.offset || 0,
-      limit: req.query.size || 10
+      offset: parseInt(req.query.offset) || 0,
+      limit: parseInt(req.query.size) || 10
     })
     .then(function (projects) {
       res.json(projects);
@@ -28,8 +28,8 @@ router.get('/', function (req, res) {
 router.get('/list', function (req, res) {
   ProjectModel
     .findAll({
-      offset: req.query.offset || 0,
-      limit: req.query.limit || 0,
+      offset: parseInt(req.query.offset) || 0,
+      limit: parseInt(req.query.size) || 0,
       include: [
         {
           model: VersionModel,

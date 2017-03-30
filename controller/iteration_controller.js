@@ -21,8 +21,8 @@ router.get('/', function(req, res) {
   IterationModel
     .findAndCount({
       where: where,
-      offset: req.query.offset || 0,
-      limit: req.query.size || 10,
+      offset: parseInt(req.query.offset) || 0,
+      limit: parseInt(req.query.size) || 10,
       order: 'id ASC',
       include: [
         {model: VersionModel, include: [{model: ProjectModel}]}
