@@ -5,6 +5,7 @@ var Sequelize = require('sequelize');
 // 导出
 var base = new Sequelize(config.database, config.user, config.password, {
   host: config.host,
+  port:config.port,
   dialect: 'mysql',
   define: {
     engine: 'innodb',

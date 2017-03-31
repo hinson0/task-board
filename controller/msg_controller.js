@@ -9,8 +9,8 @@ router.get('/', function (req, res) {
   Msg91uModel
     .findAll({
       where: {receiver: req.query.user_id},
-      offset: req.query.offset || 0,
-      limit: req.query.size || 10,
+      offset: parseInt(req.query.offset) || 0,
+      limit: parseInt(req.query.size) || 10,
       order: 'id DESC'
     })
     .then(function (msgs) {

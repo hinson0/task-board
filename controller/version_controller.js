@@ -55,8 +55,8 @@ router.get('/', function (req, res) {
         {model: ProjectModel}
       ],
       order: 'id DESC',
-      offset: req.query.offset || 0,
-      limit: req.query.size || 10
+      offset: parseInt(req.query.offset) || 0,
+      limit: parseInt(req.query.size) || 10
     })
     .then(function (result) {
       res.json(result);
